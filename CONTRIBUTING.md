@@ -10,7 +10,7 @@ TODO
 
 ## Commit Message Guidelines
 
-We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for commit messages. This helps keep our commit history clean and easy to understand.
+We follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for commit messages, but with emojis. This helps keep our commit history clean and easy to understand.
 
 Here's a table of common commit types and their corresponding emojis:
 
