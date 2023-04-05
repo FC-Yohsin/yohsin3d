@@ -4,7 +4,7 @@ import signal, sys, traceback
 
 
 class Agent:
-    def _init_(
+    def __init__(
         self,
         agent_num: int,
         agent_type: int,

@@ -1,23 +1,26 @@
+from .body.body_model import *
+from .world.world_model import *
+from .parser import Parser
 
 class Behavior:
 
-    def __init__(self, team_name: str, rsg: str, agent_unum=0, agent_type=None, start_coordinates=None,) -> None:
+    def __init__(self, team_name: str, rsg: str, agent_unum, agent_type, start_coordinates) -> None:
         self.rsg = rsg
         self.team_name = team_name
         self.agent_unum = agent_unum
+        self.start_coordinates = start_coordinates
 
         self.monitor_msg = ""
-
         self.spawn_init = False
         self.initialized = False
         self.init_beamed = False
+        self.respawning = False
 
-        self.world_model = WorldModel(self.team_name)
-        self.body_model = BodyModel(self.world_model, agent_type)
+        self.world_model = WorldModel()
+        self.body_model = BodyModel(self.world_model)
 
         self.parser = Parser(world_model=self.world_model,
                              body_model=self.body_model)
-        self.world_model.agent_starting_position = self.start_coordinates
 
     def spawn_message(self):
         print("Loading rsg: " + "(scene " + self.rsg + ")")
@@ -42,7 +45,7 @@ class Behavior:
         message = ""
         for effector in EffectorJoints:
             torque = self.body_model.compute_torque(effector)
-            effector_name = effector_to_string[effector]
+            effector_name = effector.to_string()
             message += self.hj_effector(effector_name, torque)
 
         return message
@@ -107,9 +110,7 @@ class Behavior:
             self.respawn()
         
         action = ""
-
         self.act()
-
         action += self.compose_action()
 
         return action
