@@ -1,6 +1,6 @@
 from .body.body_model import *
 from .world.world_model import *
-from .parser import Parser
+from .network.parser import Parser
 
 class Behavior:
 

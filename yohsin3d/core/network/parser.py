@@ -1,7 +1,7 @@
 import re
 from typing import List
-from .body.body_model import *
-from .world.world_model import *
+from ..body.body_model import *
+from ..world.world_model import *
 
 class Parser:
 

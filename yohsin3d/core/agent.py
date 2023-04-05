@@ -1,4 +1,4 @@
-from .server import Server
+from .network.server import Server
 from .behavior import Behavior
 import signal, sys, traceback
 
