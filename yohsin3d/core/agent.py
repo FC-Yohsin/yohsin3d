@@ -1,14 +1,13 @@
 from .server import Server
 from .behavior import Behavior
-import sys, traceback
+import signal, sys, traceback
 
 
 class Agent:
-    def __init__(
+    def _init_(
         self,
         agent_num: int,
         agent_type: int,
-        behavior_type: str,
         team_name: str = "FCYohsin",
         host_name: str = "localhost",
         global_port: int = 3100,
@@ -18,7 +17,6 @@ class Agent:
         self.team_name = team_name
         self.agent_num = agent_num
         self.agent_type = agent_type
-        self.behavior_type = behavior_type
 
         self.nao_rsg = "rsg/agent/nao/nao.rsg" if agent_type == 0 else f"rsg/agent/nao/nao_hetero.rsg {agent_type}"
 
@@ -29,15 +27,18 @@ class Agent:
 
         self.global_socket = Server()
         self.monitor_socket = Server()
-        self.behavior = None
+        self.behavior: Behavior = Behavior(
+            team_name=self.team_name,
+            rsg=self.nao_rsg,
+            agent_type=self.agent_type,
+            agent_unum=self.agent_num,
+            start_coordinates=(0,0,0)
+        )
 
     def done(self):
         self.global_socket.close()
         if self.monitor_port != -1:
             self.monitor_socket.close()
-
-    def print_greeting(self):
-        print("FC Yohsin Simulation Team Base Code\n")
 
     def run(self):
 
@@ -64,8 +65,7 @@ class Agent:
                     if msg_to_server is not None:
                         self.global_socket.put_message(msg_to_server)
                     if self.monitor_port != -1:
-                        self.monitor_socket.put_message(
-                            behavior.get_mon_message())
+                        self.monitor_socket.put_message(behavior.get_monitor_message())
 
                 except Exception as e:
                     print(traceback.format_exc())
@@ -74,10 +74,9 @@ class Agent:
 
     def start(self):
         def signal_handler(sig, _):
-            print('Exiting!')
+            print('\nExiting!')
             sys.exit(0)
 
-        self.print_greeting()
+        signal.signal(signal.SIGINT, signal_handler)
         self.run()
         self.done()
-
