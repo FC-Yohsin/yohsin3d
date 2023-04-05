@@ -27,10 +27,8 @@ Here's a table of common commit types and their corresponding emojis:
 
 When you commit your changes, please start your commit message with one of the commit types listed above (in all caps), followed by a colon and a brief description of the changes you made. For example:
 
-FEAT: Add new feature
+✨: Add new feature
 
-less
-Copy code
 
 ## Code Style
 
@@ -39,4 +37,3 @@ We use [PEP 8](https://www.python.org/dev/peps/pep-0008/) style guidelines for P
 ## Conclusion
 
 Thank you for taking the time to contribute to yohsin3d! If you have any questions or need help with anything, please don't hesitate to ask in the project's [issue tracker](https://github.com/FC-Yohsin/yohisn3d).
-You can copy and paste this code into a new CONTRIBUTING.md file for your Python project.
