@@ -1,1 +1,1 @@
-from .core.agent import Agent, Behavior
+from .core.agent import Agent, BaseBehavior

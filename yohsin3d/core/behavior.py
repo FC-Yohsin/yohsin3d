@@ -2,7 +2,7 @@ from .body.body_model import *
 from .world.world_model import *
 from .network.parser import Parser
 
-class Behavior:
+class BaseBehavior:
 
     def __init__(self, start_coordinates=(0,0)) -> None:
         self.start_coordinates = start_coordinates

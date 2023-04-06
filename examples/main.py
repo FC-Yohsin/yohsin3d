@@ -1,11 +1,19 @@
-from yohsin3d import Agent
+from yohsin3d import Agent, BaseBehavior
 
+
+class DerivedBehavior(BaseBehavior):
+    def __init__(self, start_coordinates=(0,0)) -> None:
+        super().__init__(start_coordinates=start_coordinates)
+
+    def act(self):
+        print("HELLO")
+
+behavior = DerivedBehavior(start_coordinates=(-14.4, 0.0))
 agent = Agent(agent_num=1,
-                agent_type=0,
-                monitor_port=3200,
                 global_port=3100,
                 host_name="localhost",
                 team_name="FCYohsin",
+                behavior=behavior
                 )
 
 agent.start()
