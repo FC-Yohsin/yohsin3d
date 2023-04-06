@@ -1,5 +1,5 @@
 import struct, socket
-INT_SIZE = 4
+from .constants import *
 
 class Server:
     def __init__(self) -> None:

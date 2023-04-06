@@ -5,7 +5,8 @@ agent = Agent(agent_num=1,
                 monitor_port=3200,
                 global_port=3100,
                 host_name="localhost",
-                team_name="FCYohsin")
+                team_name="FCYohsin",
+                )
 
 agent.start()
 

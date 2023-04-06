@@ -30,6 +30,9 @@ class PlayModes(IntEnum):
     PM_PASS_LEFT = 19
     PM_PASS_RIGHT = 20
 
+    def to_string(self):
+        return self.name
+
 
 playModeStringToEnum = {
     "BeforeKickOff": PlayModes.PM_BEFORE_KICK_OFF,

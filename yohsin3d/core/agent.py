@@ -2,12 +2,11 @@ from .network.server import Server
 from .behavior import Behavior
 import signal, sys, traceback
 
-
 class Agent:
     def __init__(
         self,
         agent_num: int,
-        agent_type: int,
+        agent_type: int = 0,
         team_name: str = "FCYohsin",
         host_name: str = "localhost",
         global_port: int = 3100,
@@ -17,6 +16,7 @@ class Agent:
         self.team_name = team_name
         self.agent_num = agent_num
         self.agent_type = agent_type
+        self.spawned = False
 
         self.nao_rsg = "rsg/agent/nao/nao.rsg" if agent_type == 0 else f"rsg/agent/nao/nao_hetero.rsg {agent_type}"
 
@@ -28,17 +28,20 @@ class Agent:
         self.global_socket = Server()
         self.monitor_socket = Server()
         self.behavior: Behavior = Behavior(
-            team_name=self.team_name,
-            rsg=self.nao_rsg,
-            agent_type=self.agent_type,
-            agent_unum=self.agent_num,
-            start_coordinates=(0,0,0)
+            start_coordinates=(0, 0)
         )
-
     def done(self):
         self.global_socket.close()
         if self.monitor_port != -1:
             self.monitor_socket.close()
+
+    def setup_message(self):
+        print("Loading rsg: " + "(scene " + self.nao_rsg + ")")
+        return f"(scene {self.nao_rsg})"
+    
+    def spawn_message(self):
+        return f"(init (unum {self.agent_num})(teamname {self.team_name}))"
+    
 
     def run(self):
 
@@ -56,12 +59,18 @@ class Agent:
                 exit()
 
             print("Connection Established...")
-            self.global_socket.put_message(behavior.spawn_message())
+            self.global_socket.put_message(self.setup_message())
 
             while self.agent_running:
                 try:
                     msg_from_server = self.global_socket.get_message().decode('utf-8')
-                    msg_to_server = behavior.think(msg_from_server)
+                    msg_to_server = None
+                    if not self.spawned:
+                        msg_to_server = self.spawn_message()
+                        self.spawned = True
+                    else:
+                        msg_to_server = behavior.think(msg_from_server)
+
                     if msg_to_server is not None:
                         self.global_socket.put_message(msg_to_server)
                     if self.monitor_port != -1:

@@ -2,6 +2,7 @@ import re
 from typing import List
 from ..body.body_model import *
 from ..world.world_model import *
+from .constants import *
 
 class Parser:
 
@@ -37,6 +38,7 @@ class Parser:
 
         playmode_string = self.__parser_helper("pm", string)
         playmode = playModeStringToEnum.get(playmode_string, None)
+        self.world_model.set_last_playmode(self.world_model.get_playmode())
         self.world_model.set_playmode(playmode)
 
         gametime = float(self.__parser_helper("t", string))

@@ -47,7 +47,7 @@ class BodyModel:
             self.set_target_angle(EffectorJoints.EFF_LA3, ang3)
             self.set_target_angle(EffectorJoints.EFF_LA4, ang4)
 
-        else:  # ARM_RIGHT
+        else:  
 
             self.set_target_angle(EffectorJoints.EFF_RA1, ang1)
             self.set_target_angle(EffectorJoints.EFF_RA2, -ang2)
