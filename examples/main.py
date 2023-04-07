@@ -6,7 +6,8 @@ class DerivedBehavior(BaseBehavior):
         super().__init__(start_coordinates=start_coordinates)
 
     def act(self):
-        print("HELLO")
+        # Add the brain
+        pass
 
 behavior = DerivedBehavior(start_coordinates=(-14.4, 0.0))
 agent = Agent(agent_num=1,
