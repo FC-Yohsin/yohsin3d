@@ -1,4 +1,5 @@
-from yohsin3d import Agent, BaseBehavior, GroundTruthLocalizer
+from yohsin3d import Agent, BaseBehavior
+from yohsin3d.localizers import GroundTruthLocalizer
 
 
 class DerivedBehavior(BaseBehavior):
