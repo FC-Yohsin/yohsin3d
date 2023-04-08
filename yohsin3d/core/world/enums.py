@@ -1,9 +1,11 @@
 
 from enum import IntEnum, Enum
 
+
 class Sides(IntEnum):
     LEFT = 0
     RIGHT = 1
+
 
 class PlayModes(Enum):
     BEFORE_KICK_OFF = "BeforeKickOff"
@@ -49,4 +51,3 @@ class VisibleObjects(Enum):
 class WorldDimensions(Enum):
     HEIGHT = 20.0
     WIDTH = 30.0
-

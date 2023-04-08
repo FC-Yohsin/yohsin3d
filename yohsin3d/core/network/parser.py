@@ -4,6 +4,7 @@ from ..body.body_model import *
 from ..world.world_model import *
 from .constants import *
 
+
 class Parser:
 
     def __init__(self,
@@ -14,7 +15,6 @@ class Parser:
         self.body_model: BodyModel = body_model
         self.side = Sides.LEFT
 
-
     def tokenise(self, s) -> List[str]:
         string = re.sub(r'[\(\)]', ' ', s)
         result = re.split(r'\s+', string.strip())
@@ -24,7 +24,6 @@ class Parser:
         match = re.search(fr'{matching_string}\s+([^\)\]]+)', string)
         if match:
             return match.group(1)
-
 
     def __parse_time(self, string):
         time = float(self.__parser_helper("now", string))
@@ -55,10 +54,10 @@ class Parser:
         if not self.world_model.is_side_set():
             side = self.__parser_helper("team", string)
             if side is not None:
-                self.world_model.set_side(Sides.LEFT if side == "left" else Sides.RIGHT)
+                self.world_model.set_side(
+                    Sides.LEFT if side == "left" else Sides.RIGHT)
 
         return True
-
 
     def __parse_gyro(self, string):
         rateX, rateY, rateZ = self.__get_xyz(string, "rt")
@@ -68,7 +67,6 @@ class Parser:
     def __get_xyz(self, string, start):
         x, y, z = self.__parser_helper(start, string).split()
         return float(x), float(y), float(z)
-
 
     def __parse_accelerometer(self, string):
         rateX, rateY, rateZ = self.__get_xyz(string, "a")
@@ -96,32 +94,30 @@ class Parser:
         correctedRateY = K * lastAccel[1] + (1 - K) * correctedRateY
         correctedRateZ = K * lastAccel[2] + (1 - K) * correctedRateZ
 
-        self.body_model.set_accel_rates((correctedRateX, correctedRateY, correctedRateZ))
-
+        self.body_model.set_accel_rates(
+            (correctedRateX, correctedRateY, correctedRateZ))
 
     def __segment(self, string):
         return re.findall(r'\(([^()]*(?:\(([^()]*(?:\((?:[^()]*(?:\([^()]*\)[^()]*)*)\)[^()]*)*)\)[^()]*)*)\)', string)
 
-
     def __parse_hinge_joint(self, string):
         effector_name = joint_to_effector[self.__parser_helper("n", string)]
         effector_angle = float(self.__parser_helper("ax", string))
-        
+
         self.body_model.set_current_angle(effector_name, effector_angle)
         return True
-
 
     def __parse_FRP(self, str):
         name = self.__parser_helper("n", str)
         centreX, centreY, centreZ = self.__get_xyz(str, "c")
         forceX, forceY, forceZ = self.__get_xyz(str, "f")
         name = ForceResistancePerceptors(name)
-        self.world_model.force_resistance_perceptors[name] = [(centreX, centreY, centreZ),(forceX, forceY, forceZ)]
+        self.world_model.force_resistance_perceptors[name] = [
+            (centreX, centreY, centreZ), (forceX, forceY, forceZ)]
         return True
 
     def __get_first(self, string):
         return re.search(r'^[^( ]+', string).group(0)
-
 
     def __parse_simple_vision_object(self, string):
         name = self.__get_first(string)
@@ -130,14 +126,11 @@ class Parser:
         self.world_model.simple_vision_objects[name] = (x, y, z)
         return True
 
-
-
     def __parse_line(self, string):
-
         '''
         Parse Line is not complete yet. There are multiple lines data coming from the server. We need to figure out how to 
         process that. 
-        
+
         TODO: Need to undderstand the concept of the lines
         '''
         tokens = self.tokenise(string)
@@ -153,34 +146,34 @@ class Parser:
         self.world_model.lines = [(r, theta, phi), (r2, theta2, phi2)]
         return True
 
-
     def __parse_player(self, string):
 
         valid = False
 
         tokens = self.tokenise(string)
-        valid = (len(tokens) == 30) # based on the assumption that the max characters in a team name will be 100
+        # based on the assumption that the max characters in a team name will be 100
+        valid = (len(tokens) == 30)
 
         if valid:
             agent_num = (tokens[4]).zfill(2)
             team_name = tokens[2]
 
             player_info = {
-                    "head" : (float(tokens[7]), float(tokens[8]), float(tokens[9])),
-                    "rlowerarm" : (float(tokens[12]), float(tokens[13]), float(tokens[14])),
-                    "llowerarm" : (float(tokens[17]), float(tokens[18]), float(tokens[19])),
-                    "rfoot" : (float(tokens[22]), float(tokens[23]), float(tokens[24])),
-                    "lfoot" : (float(tokens[27]), float(tokens[28]), float(tokens[29]))
-                }
-            
-            
+                "head": (float(tokens[7]), float(tokens[8]), float(tokens[9])),
+                "rlowerarm": (float(tokens[12]), float(tokens[13]), float(tokens[14])),
+                "llowerarm": (float(tokens[17]), float(tokens[18]), float(tokens[19])),
+                "rfoot": (float(tokens[22]), float(tokens[23]), float(tokens[24])),
+                "lfoot": (float(tokens[27]), float(tokens[28]), float(tokens[29]))
+            }
+
             if team_name == self.world_model.my_team_name:
-                self.world_model.teammate_info[agent_num].update_from_dict(player_info)
+                self.world_model.teammate_info[agent_num].update_from_dict(
+                    player_info)
             else:
-                self.world_model.opponent_info[agent_num].update_from_dict(player_info)
+                self.world_model.opponent_info[agent_num].update_from_dict(
+                    player_info)
 
         return valid
-
 
     def __reset_simple_non_visible_objects(self, string):
         for object in VisibleObjects:
@@ -195,15 +188,15 @@ class Parser:
         for object in self.world_model.teammate_info.keys():
             if not self.__is_player_visible(string, object, self.world_model.my_team_name):
                 self.world_model.teammate_info[object] = None
-        
+
         for object in self.world_model.opponent_info.keys():
             if not self.__is_player_visible(string, object, self.world_model.opponent_team_name):
                 self.world_model.teammate_info[object] = None
 
-
     def __parse_position_groundtruth(self, string):
         tokens = self.tokenise(string)
-        self.world_model.set_position_groundtruth((float(tokens[1]), float(tokens[2]), float(tokens[3])))
+        self.world_model.set_position_groundtruth(
+            (float(tokens[1]), float(tokens[2]), float(tokens[3])))
 
     def __parse_orientation_groundtruth(self, string):
         tokens = self.tokenise(string)
@@ -211,7 +204,8 @@ class Parser:
 
     def __parse_ball_position_groundtruth(self, string):
         tokens = self.tokenise(string)
-        self.world_model.set_ball_position_groundtruth((float(tokens[1]), float(tokens[2]), float(tokens[3])))
+        self.world_model.set_ball_position_groundtruth(
+            (float(tokens[1]), float(tokens[2]), float(tokens[3])))
 
     def __parse_see(self, string):
         valid = True
@@ -222,53 +216,49 @@ class Parser:
         str_segments = self.__segment(string)
 
         for segment in str_segments:
-            segment:str = segment[0].strip()
+            segment: str = segment[0].strip()
 
             # Goalpost
-            if(segment[0] == 'G'):
+            if (segment[0] == 'G'):
                 valid = self.__parse_simple_vision_object(segment) and valid
 
             # Flags
-            elif(segment[0] == 'F'):
+            elif (segment[0] == 'F'):
                 valid = self.__parse_simple_vision_object(segment) and valid
 
             # Ball
-            elif(segment[0] == 'B'):
+            elif (segment[0] == 'B'):
                 valid = self.__parse_simple_vision_object(segment) and valid
 
             # Player
-            elif(segment[0]== 'P'):
+            elif (segment[0] == 'P'):
                 self.__parse_player(segment)
 
             # My Position and My Orientation (Ground Truth)
-            elif (segment[0]== 'm'):
-                if (segment[:6].strip()== 'mypos'):
+            elif (segment[0] == 'm'):
+                if (segment[:6].strip() == 'mypos'):
                     self.__parse_position_groundtruth(segment)
 
                 if (segment[:8].strip() == 'myorien'):
                     self.__parse_orientation_groundtruth(segment)
 
-
             # GroundTruth Ball Position
-            elif (segment[0]== 'b'):
+            elif (segment[0] == 'b'):
                 if (segment[:8].strip() == 'ballpos'):
                     self.__parse_ball_position_groundtruth(segment)
 
             # See token (ignore)
-            elif  (segment[0]== 'S'):
+            elif (segment[0] == 'S'):
                 pass
 
             # Line
-            elif (segment[0] == 'L' ):
+            elif (segment[0] == 'L'):
                 valid = self.__parse_line(segment)
 
             else:
                 valid = False
 
-
         return valid
-
-
 
     def parse(self, string):
         valid = True
@@ -279,13 +269,12 @@ class Parser:
             segment: str = segment[0].strip()
 
             # Time
-            if (segment[0]== 't'):
+            if (segment[0] == 't'):
                 valid = self.__parse_time(segment) and valid
 
-
-            elif(segment[0] == 'G'):
+            elif (segment[0] == 'G'):
                 # GameState
-                if(segment[1] == 'S'):
+                if (segment[1] == 'S'):
                     valid = self.__parse_game_state(segment) and valid
 
                 # Gyro
@@ -293,24 +282,23 @@ class Parser:
                     valid = self.__parse_gyro(segment) and valid
 
             # Hear #TODO
-            elif(segment[0] == 'h'):
+            elif (segment[0] == 'h'):
                 pass
 
             # Hinge Joint
-            elif(segment[0] == 'H'):
+            elif (segment[0] == 'H'):
                 valid = self.__parse_hinge_joint(segment) and valid
 
-
             # See
-            elif(segment[0] == 'S'):
+            elif (segment[0] == 'S'):
                 valid = self.__parse_see(segment)
 
             # FRP
-            elif(segment[0] == 'F'):
+            elif (segment[0] == 'F'):
                 valid = self.__parse_FRP(segment) and valid
 
             # Accelerometer
-            elif(segment[0] == 'A'):
+            elif (segment[0] == 'A'):
                 valid = self.__parse_accelerometer(segment) and valid
 
             else:

@@ -4,16 +4,14 @@ from .localizer import BaseLocalizer
 from .network import Parser
 
 
-
 class BaseBehavior:
 
-    def __init__(self, start_coordinates=(0,0), localizer: BaseLocalizer=None) -> None:
+    def __init__(self, start_coordinates=(0, 0), localizer: BaseLocalizer = None) -> None:
         self.start_coordinates = start_coordinates
         self.monitor_msg = ""
         self.initialized = False
         self.init_beamed = False
         self.localizer = localizer
-
 
     def initialize(self, team_name):
         self.world_model = WorldModel(team_name)
@@ -21,9 +19,8 @@ class BaseBehavior:
 
         self.parser = Parser(world_model=self.world_model,
                              body_model=self.body_model)
-        
-        self.localizer.initialize(self.world_model)
 
+        self.localizer.initialize(self.world_model)
 
     def can_rebeam(self):
         pm = self.world_model.get_playmode()
@@ -34,7 +31,6 @@ class BaseBehavior:
             PlayModes.GOAL_RIGHT,
         ]
         return pm in beamable_modes and pm != last_pm
-
 
     def beam_effector(self, x, y, z):
         return f"(beam {x} {y} {z})"
@@ -70,7 +66,6 @@ class BaseBehavior:
         self.body_model.set_initial_leg(BodyParts.LEG_RIGHT)
         self.body_model.set_initial_head()
 
-
     def __can_initialize(self):
         return self.world_model.is_my_number_set() and self.world_model.is_side_set()
 
@@ -79,14 +74,13 @@ class BaseBehavior:
         if not self.init_beamed:
             self.init_beamed = True
             return self.init_beam_effector()
-        
+
         if not self.__can_initialize() or self.initialized:
             return
-        
+
         self.initialize_body()
         self.initialized = True
         return None
-
 
     def think(self, message: str) -> str:
 
@@ -111,4 +105,3 @@ class BaseBehavior:
 
     def act(self):
         pass
-    

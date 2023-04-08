@@ -1,47 +1,45 @@
 from enum import Enum, IntEnum
 
 
-
 #  EffectorJoints
 class EffectorJoints(IntEnum):
-    EFF_H1 = 0 # Head Yaw
-    EFF_H2 = 1 # Head Pitch
+    EFF_H1 = 0  # Head Yaw
+    EFF_H2 = 1  # Head Pitch
 
-    EFF_LA1 = 2 # Left Arm Shoulder Pitch
-    EFF_LA2 = 3 # Left Arm Shoulder Yaw
-    EFF_LA3 = 4 # Left Arm Elbow Yaw
-    EFF_LA4 = 5 # Left Arm Elbow Roll
+    EFF_LA1 = 2  # Left Arm Shoulder Pitch
+    EFF_LA2 = 3  # Left Arm Shoulder Yaw
+    EFF_LA3 = 4  # Left Arm Elbow Yaw
+    EFF_LA4 = 5  # Left Arm Elbow Roll
 
-    EFF_RA1 = 6 # Right Arm Shoulder Pitch
-    EFF_RA2 = 7 # Right Arm Shoulder Yaw
-    EFF_RA3 = 8 # Right Arm Elbow Yaw
-    EFF_RA4 = 9 # Right Arm Elbow Roll
+    EFF_RA1 = 6  # Right Arm Shoulder Pitch
+    EFF_RA2 = 7  # Right Arm Shoulder Yaw
+    EFF_RA3 = 8  # Right Arm Elbow Yaw
+    EFF_RA4 = 9  # Right Arm Elbow Roll
 
-    EFF_LL1 = 10 # Left Leg Hip Yaw Pitch
-    EFF_LL2 = 11 # Left Leg Hip Roll
-    EFF_LL3 = 12 # Left Leg Hip Pitch
-    EFF_LL4 = 13 # Left Leg Knee
-    EFF_LL5 = 14 # Left Leg Pitch
-    EFF_LL6 = 15 # Left Leg Roll
-    EFF_LL7 = 16 # Left Leg Foot
+    EFF_LL1 = 10  # Left Leg Hip Yaw Pitch
+    EFF_LL2 = 11  # Left Leg Hip Roll
+    EFF_LL3 = 12  # Left Leg Hip Pitch
+    EFF_LL4 = 13  # Left Leg Knee
+    EFF_LL5 = 14  # Left Leg Pitch
+    EFF_LL6 = 15  # Left Leg Roll
+    EFF_LL7 = 16  # Left Leg Foot
 
-    EFF_RL1 = 17 # Right Leg Hip Yaw Pitch
-    EFF_RL2 = 18 # Right Leg Hip Roll
-    EFF_RL3 = 19 # Right Leg Hip Pitch
-    EFF_RL4 = 20 # Right Leg Knee
-    EFF_RL5 = 21 # Right Leg Pitch
-    EFF_RL6 = 22 # Right Leg Roll
-    EFF_RL7 = 23 # Right Leg Foot
+    EFF_RL1 = 17  # Right Leg Hip Yaw Pitch
+    EFF_RL2 = 18  # Right Leg Hip Roll
+    EFF_RL3 = 19  # Right Leg Hip Pitch
+    EFF_RL4 = 20  # Right Leg Knee
+    EFF_RL5 = 21  # Right Leg Pitch
+    EFF_RL6 = 22  # Right Leg Roll
+    EFF_RL7 = 23  # Right Leg Foot
 
     def __str__(self):
         return self.name
-    
+
     def to_range(self):
         return effector_to_range[self]
-    
+
     def to_string(self):
         return effector_to_string[self]
-
 
 
 effector_to_range = {
@@ -126,4 +124,3 @@ effector_to_string = {
     EffectorJoints.EFF_RL6: "rle6",
     EffectorJoints.EFF_RL7: "rle7",
 }
-

@@ -1,4 +1,6 @@
-import signal, sys, traceback
+import signal
+import sys
+import traceback
 
 from .network import Server
 from .body import AgentType
@@ -15,9 +17,8 @@ class Agent:
         agent_type: AgentType = 0,
         host_name: str = "localhost",
         global_port: int = 3100,
-        monitor_port: int = 3200,        
+        monitor_port: int = 3200,
     ) -> None:
-    
 
         self.team_name = team_name
         self.agent_num = agent_num
@@ -36,7 +37,6 @@ class Agent:
         self.behavior: BaseBehavior = behavior
         self.behavior.initialize(team_name)
 
-
     def done(self):
         self.global_socket.close()
         if self.monitor_port != -1:
@@ -45,10 +45,9 @@ class Agent:
     def setup_message(self):
         print("Loading rsg: " + "(scene " + self.nao_rsg + ")")
         return f"(scene {self.nao_rsg})"
-    
+
     def spawn_message(self):
         return f"(init (unum {self.agent_num})(teamname {self.team_name}))"
-    
 
     def run(self):
 
@@ -81,7 +80,8 @@ class Agent:
                     if msg_to_server is not None:
                         self.global_socket.put_message(msg_to_server)
                     if self.monitor_port != -1:
-                        self.monitor_socket.put_message(behavior.get_monitor_message())
+                        self.monitor_socket.put_message(
+                            behavior.get_monitor_message())
 
                 except Exception as e:
                     print(traceback.format_exc())
