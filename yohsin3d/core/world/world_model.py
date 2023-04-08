@@ -1,3 +1,4 @@
+from .ground_truth_model import GroundTruthModel
 from .enums import *
 
 class WorldModel:
@@ -13,10 +14,8 @@ class WorldModel:
         self.last_playmode = PlayModes.PM_GAME_OVER
         self.last_different_playmode = PlayModes.PM_GAME_OVER
 
-        self.position_groundtruth = [0, 0, 0]
-        self.orientation_groundtruth = 0
-        self.ball_position_groundtruth = [0,0,0]
-    
+        self.groudtruth = None
+
         self.unum = None
         self.unum_set = False
         
