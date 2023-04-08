@@ -122,6 +122,8 @@ class PlayerInfo:
         self.rfoot = rfoot
         self.lfoot = lfoot
 
+        self.is_visible = False
+
     def update_from_dict(self, dict):
         self.head = dict['head']
         self.rlowerarm = dict['rlowerarm']

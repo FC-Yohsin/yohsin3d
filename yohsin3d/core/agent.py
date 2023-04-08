@@ -4,7 +4,6 @@ import traceback
 
 from .network import Server
 from .body import AgentType
-
 from .behavior import BaseBehavior
 
 

@@ -1,18 +1,23 @@
 import re
 from typing import List
-from ..body.body_model import *
-from ..world.world_model import *
+from ..body import *
+from ..world import *
+from ..communicator import *
 from .constants import *
 
 
 class Parser:
 
     def __init__(self,
-                 world_model=None,
-                 body_model=None) -> None:
+                 world_model,
+                 body_model,
+                 communicator,
+                 ) -> None:
 
         self.world_model: WorldModel = world_model
         self.body_model: BodyModel = body_model
+        self.communicator: BaseCommunicator = communicator
+        
         self.side = Sides.LEFT
 
     def tokenise(self, s) -> List[str]:
@@ -158,6 +163,8 @@ class Parser:
             agent_num = (tokens[4]).zfill(2)
             team_name = tokens[2]
 
+            agent_num = int(agent_num)
+
             player_info = {
                 "head": (float(tokens[7]), float(tokens[8]), float(tokens[9])),
                 "rlowerarm": (float(tokens[12]), float(tokens[13]), float(tokens[14])),
@@ -167,11 +174,11 @@ class Parser:
             }
 
             if team_name == self.world_model.my_team_name:
-                self.world_model.teammate_info[agent_num].update_from_dict(
-                    player_info)
+                self.world_model.teammate_info[agent_num].is_visible = True
+                self.world_model.teammate_info[agent_num].update_from_dict(player_info)
             else:
-                self.world_model.opponent_info[agent_num].update_from_dict(
-                    player_info)
+                self.world_model.opponent_info[agent_num].is_visible = True
+                self.world_model.opponent_info[agent_num].update_from_dict(player_info)
 
         return valid
 
@@ -187,11 +194,11 @@ class Parser:
     def __reset_player_information(self, string):
         for object in self.world_model.teammate_info.keys():
             if not self.__is_player_visible(string, object, self.world_model.my_team_name):
-                self.world_model.teammate_info[object] = None
+                self.world_model.teammate_info[object].is_visible = False
 
         for object in self.world_model.opponent_info.keys():
             if not self.__is_player_visible(string, object, self.world_model.opponent_team_name):
-                self.world_model.teammate_info[object] = None
+                self.world_model.opponent_info[object].is_visible = False
 
     def __parse_position_groundtruth(self, string):
         tokens = self.tokenise(string)
@@ -259,8 +266,71 @@ class Parser:
                 valid = False
 
         return valid
+    
+
+
+    def __parse_hear(self: 'Parser', string):
+
+        tokens = self.tokenise(string)
+        valid = False
+
+        heard_time = 0.0
+        is_self = False
+        message = ""
+
+        valid = len(tokens) == 5
+
+        
+
+        if not valid:
+            return valid
+
+        i = 1
+
+        if len(tokens) == 5:
+            team = tokens[i]
+            i+=1
+            if team != self.world_model.my_team_name:
+                self.world_model.opponent_team_name = team
+                return True
+
+        heard_time = float(tokens[i])
+
+        if tokens[i + 1] == "self":
+            is_self = True
+        else:
+            is_self = False
+
+        
+        i += 2
+
+        if i >= len(tokens):
+            return False
+
+        message = tokens[i]
+        delta_game_time = self.world_model.get_time() - self.world_model.get_gametime()
+        hear_game_time = heard_time + delta_game_time
+        orientation = tokens[3]
+
+        heard_message = HeardMessage(
+            message=message,
+            heard_time=hear_game_time, 
+            team_name=team,
+            voice_orientation=orientation
+            )
+        
+        self.communicator.heard_messages.append(heard_message)
+        
+        # proccess_success, playerNum, timeBallLastSeen, ballX, ballY, playerX, playerY, fallen, _ = process_hear_message(message, hearTime+deltaServerToGameTime)
+        
+        if not is_self:
+            pass
+        return valid
 
     def parse(self, string):
+
+        self.communicator.reset()
+
         valid = True
 
         inputSegments = self.__segment(string)
@@ -283,7 +353,7 @@ class Parser:
 
             # Hear #TODO
             elif (segment[0] == 'h'):
-                pass
+                valid = self.__parse_hear(segment) and valid
 
             # Hinge Joint
             elif (segment[0] == 'H'):
