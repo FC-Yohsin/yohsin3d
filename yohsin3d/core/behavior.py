@@ -1,14 +1,16 @@
 from .body.body_model import *
 from .world.world_model import *
 from .network.parser import Parser
+from .localizer import BaseLocalizer
 
 class BaseBehavior:
 
-    def __init__(self, start_coordinates=(0,0)) -> None:
+    def __init__(self, start_coordinates=(0,0), localizer: BaseLocalizer=None) -> None:
         self.start_coordinates = start_coordinates
         self.monitor_msg = ""
         self.initialized = False
         self.init_beamed = False
+        self.localizer = localizer
 
 
     def initialize(self, team_name):
@@ -17,6 +19,8 @@ class BaseBehavior:
 
         self.parser = Parser(world_model=self.world_model,
                              body_model=self.body_model)
+        
+        self.localizer.initialize(self.world_model)
 
 
     def can_rebeam(self):
@@ -94,6 +98,10 @@ class BaseBehavior:
 
         if self.can_rebeam():
             self.init_beamed = False
+
+        self.world_model.location.update_position(self.localizer.localize_agent_position())
+        self.world_model.location.update_orientation(self.localizer.localize_agent_orientation())
+        self.world_model.ball_position = self.localizer.localize_ball()
 
         action = ""
         self.act()

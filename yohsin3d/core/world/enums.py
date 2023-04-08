@@ -43,7 +43,7 @@ class VisibleObjects(Enum):
     G1R = 'G1R'
     G2L = 'G2L'
     G2R = 'G2R'
-    B = 'B'
+    BALL = 'B'
 
 
 class WorldDimensions(Enum):
