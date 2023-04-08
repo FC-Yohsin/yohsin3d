@@ -8,13 +8,11 @@ class Parser:
 
     def __init__(self,
                  world_model=None,
-                 body_model=None,
-                 team_name="test") -> None:
+                 body_model=None) -> None:
 
         self.world_model: WorldModel = world_model
         self.body_model: BodyModel = body_model
-        self.side = SIDE_LEFT
-        self.team_name = team_name
+        self.side = Sides.LEFT
 
 
     def tokenise(self, s) -> List[str]:
@@ -37,17 +35,16 @@ class Parser:
     def __parse_game_state(self, string):
 
         playmode_string = self.__parser_helper("pm", string)
-        playmode = playModeStringToEnum.get(playmode_string, None)
+        playmode = PlayModes(playmode_string)
         self.world_model.set_last_playmode(self.world_model.get_playmode())
         self.world_model.set_playmode(playmode)
 
         gametime = float(self.__parser_helper("t", string))
         self.world_model.set_gametime(gametime)
 
-        if self.world_model.get_unum() is None:
+        if self.world_model.get_my_number() is None:
             unum = (self.__parser_helper("unum", string))
-            self.world_model.set_unum(int(unum) if unum else None)
-            self.world_model.set_unum_set(True)
+            self.world_model.set_my_number(int(unum) if unum else None)
 
         score_left = int(self.__parser_helper("sl", string))
         self.world_model.set_score_left(score_left)
@@ -55,11 +52,10 @@ class Parser:
         score_right = int(self.__parser_helper("sr", string))
         self.world_model.set_score_right(score_right)
 
-        if not self.world_model.get_side_set():
+        if not self.world_model.is_side_set():
             side = self.__parser_helper("team", string)
             if side is not None:
-                self.world_model.set_side(SIDE_LEFT if side == "left" else SIDE_RIGHT)
-                self.world_model.set_side_set(True)
+                self.world_model.set_side(Sides.LEFT if side == "left" else Sides.RIGHT)
 
         return True
 
@@ -119,6 +115,7 @@ class Parser:
         name = self.__parser_helper("n", str)
         centreX, centreY, centreZ = self.__get_xyz(str, "c")
         forceX, forceY, forceZ = self.__get_xyz(str, "f")
+        name = ForceResistancePerceptors(name)
         self.world_model.force_resistance_perceptors[name] = [(centreX, centreY, centreZ),(forceX, forceY, forceZ)]
         return True
 
@@ -129,6 +126,7 @@ class Parser:
     def __parse_simple_vision_object(self, string):
         name = self.__get_first(string)
         x, y, z = self.__get_xyz(string, "pol")
+        name = VisibleObjects(name)
         self.world_model.simple_vision_objects[name] = (x, y, z)
         return True
 
@@ -152,7 +150,7 @@ class Parser:
         theta2 = float(tokens[7])
         phi2 = float(tokens[8])
 
-        self.world_model.complex_vision_objects['L'] = [(r, theta, phi), (r2, theta2, phi2)]
+        self.world_model.lines = [(r, theta, phi), (r2, theta2, phi2)]
         return True
 
 
@@ -174,44 +172,33 @@ class Parser:
                     "rfoot" : (float(tokens[22]), float(tokens[23]), float(tokens[24])),
                     "lfoot" : (float(tokens[27]), float(tokens[28]), float(tokens[29]))
                 }
-
-            if team_name == "FC-Yohsin":
-                self.world_model.complex_vision_objects[f"Yohsin{agent_num}"] = player_info
+            
+            
+            if team_name == self.world_model.my_team_name:
+                self.world_model.teammate_info[agent_num].update_from_dict(player_info)
             else:
-                self.world_model.complex_vision_objects[f"Opponent{agent_num}"] = player_info
+                self.world_model.opponent_info[agent_num].update_from_dict(player_info)
 
         return valid
 
 
     def __reset_simple_non_visible_objects(self, string):
-        '''
-        This method resets the objects to None if they are not visible to the agent based on our latest message from the server
-        '''
-
-        for object in self.world_model.simple_vision_objects.keys():
-            if not re.search(f"[(]{object}\s", string):
+        for object in VisibleObjects:
+            if not re.search(f"[(]{object.value}\s", string):
                 self.world_model.simple_vision_objects[object] = None
 
+    def __is_player_visible(self, string, num, team):
+        regex = f"\(P\s+\(team\s+{team}\)\s+\(id\s+{num}\)"
+        return re.search(regex, string) is not None
 
-    def __reset_complex_non_visible_objects(self, string):
-        '''
-        This method resets the objects to None if they are not visible to the agent based on our latest message from the server
-        '''
-
-        for object in self.world_model.complex_vision_objects.keys():
-
-            if "FC-Yohsin" in object:
-                if not re.search(f"\(P\s\(team\sFC-Yohsin\s[(]id\s{int(object[len(object)-2:])}\)", string):
-                    self.world_model.complex_vision_objects[object] = None
-            elif "Opponent" in object:
-                if not re.search(f"\(P\s\(team\s.{1,100}\)\s\(id\s{int(object[len(object)-2:])}", string):
-                    self.world_model.complex_vision_objects[object] = None
-            else:
-                if not re.search("\(L\s", string):
-                    self.world_model.complex_vision_objects["L"] : None
-
-
-
+    def __reset_player_information(self, string):
+        for object in self.world_model.teammate_info.keys():
+            if not self.__is_player_visible(string, object, self.world_model.my_team_name):
+                self.world_model.teammate_info[object] = None
+        
+        for object in self.world_model.opponent_info.keys():
+            if not self.__is_player_visible(string, object, self.world_model.opponent_team_name):
+                self.world_model.teammate_info[object] = None
 
 
     def __parse_position_groundtruth(self, string):
@@ -230,7 +217,7 @@ class Parser:
         valid = True
 
         self.__reset_simple_non_visible_objects(string=string)
-        self.__reset_complex_non_visible_objects(string=string)
+        self.__reset_player_information(string=string)
 
         str_segments = self.__segment(string)
 

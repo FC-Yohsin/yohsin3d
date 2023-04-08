@@ -6,13 +6,14 @@ class Agent:
     def __init__(
         self,
         agent_num: int,
+        team_name: str,
+        behavior: BaseBehavior,
         agent_type: int = 0,
-        team_name: str = "FCYohsin",
         host_name: str = "localhost",
         global_port: int = 3100,
-        monitor_port: int = 3200,
-        behavior: BaseBehavior = None,
+        monitor_port: int = 3200,        
     ) -> None:
+    
 
         self.team_name = team_name
         self.agent_num = agent_num
@@ -29,6 +30,9 @@ class Agent:
         self.global_socket = Server()
         self.monitor_socket = Server()
         self.behavior: BaseBehavior = behavior
+        self.behavior.initialize(team_name)
+
+
     def done(self):
         self.global_socket.close()
         if self.monitor_port != -1:

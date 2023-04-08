@@ -6,26 +6,26 @@ class BaseBehavior:
 
     def __init__(self, start_coordinates=(0,0)) -> None:
         self.start_coordinates = start_coordinates
-
         self.monitor_msg = ""
         self.initialized = False
         self.init_beamed = False
 
-        self.world_model = WorldModel()
+
+    def initialize(self, team_name):
+        self.world_model = WorldModel(team_name)
         self.body_model = BodyModel(self.world_model)
 
         self.parser = Parser(world_model=self.world_model,
                              body_model=self.body_model)
 
 
-
     def can_rebeam(self):
         pm = self.world_model.get_playmode()
         last_pm = self.world_model.get_last_playmode()
         beamable_modes = [
-            PlayModes.PM_BEFORE_KICK_OFF,
-            PlayModes.PM_GOAL_LEFT,
-            PlayModes.PM_GOAL_RIGHT,
+            PlayModes.BEFORE_KICK_OFF,
+            PlayModes.GOAL_LEFT,
+            PlayModes.GOAL_RIGHT,
         ]
         return pm in beamable_modes and pm != last_pm
 
@@ -66,7 +66,7 @@ class BaseBehavior:
 
 
     def __can_initialize(self):
-        return self.world_model.get_unum_set() and self.world_model.get_side_set()
+        return self.world_model.is_my_number_set() and self.world_model.is_side_set()
 
     def initialize_nao(self):
 

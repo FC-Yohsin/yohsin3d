@@ -13,7 +13,7 @@ behavior = DerivedBehavior(start_coordinates=(-14.4, 0.0))
 agent = Agent(agent_num=1,
                 global_port=3100,
                 host_name="localhost",
-                team_name="FCYohsin",
+                team_name="MyTeam",
                 behavior=behavior
                 )
 
