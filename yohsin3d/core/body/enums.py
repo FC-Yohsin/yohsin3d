@@ -76,6 +76,13 @@ effector_to_range = {
 }
 
 
+class AgentType(IntEnum):
+    NAO = 0
+    NAO_HETERO_1 = 1
+    NAO_HETERO_2 = 2
+    NAO_HETERO_3 = 3
+    NAO_HETERO_4 = 4
+
 
 class BodyParts(Enum):
     TORSO = "TORSO"

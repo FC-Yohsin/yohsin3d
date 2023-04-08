@@ -1,5 +1,6 @@
 from .network.server import Server
 from .behavior import BaseBehavior
+from .body.enums import AgentType
 import signal, sys, traceback
 
 class Agent:
@@ -8,7 +9,7 @@ class Agent:
         agent_num: int,
         team_name: str,
         behavior: BaseBehavior,
-        agent_type: int = 0,
+        agent_type: AgentType = 0,
         host_name: str = "localhost",
         global_port: int = 3100,
         monitor_port: int = 3200,        
@@ -20,7 +21,7 @@ class Agent:
         self.agent_type = agent_type
         self.spawned = False
 
-        self.nao_rsg = "rsg/agent/nao/nao.rsg" if agent_type == 0 else f"rsg/agent/nao/nao_hetero.rsg {agent_type}"
+        self.nao_rsg = "rsg/agent/nao/nao.rsg" if agent_type == AgentType.NAO else f"rsg/agent/nao/nao_hetero.rsg {int(agent_type)}"
 
         self.host_name = host_name
         self.agent_running = True
