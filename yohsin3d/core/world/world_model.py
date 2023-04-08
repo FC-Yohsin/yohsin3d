@@ -1,4 +1,5 @@
 from .enums import *
+from ..common import GroundTruthModel
 
 class WorldModel:
     def __init__(self, teamname) -> None:
@@ -18,8 +19,6 @@ class WorldModel:
         self.last_playmode = PlayModes.GAME_OVER
 
         self.groundtruth: GroundTruthModel = GroundTruthModel()
-        self.location = Location()
-        self.ball_position = None
 
         self.my_number = None        
         self.side = Sides.LEFT
@@ -98,10 +97,10 @@ class WorldModel:
         return self.my_number != None
 
     def set_position_groundtruth(self, new_pos):
-        self.groundtruth.location.update_position(new_pos)
+        self.groundtruth.my_location.update_position(new_pos)
         
     def set_orientation_groundtruth(self, new_orientation):
-        self.groundtruth.location.update_orientation(new_orientation)
+        self.groundtruth.my_location.update_orientation(new_orientation)
         
     def set_ball_position_groundtruth(self, new_pos):
         self.groundtruth.ball_position = new_pos
@@ -117,35 +116,6 @@ class WorldModel:
 
 
 
-
-# ------------------- Models ------------------- #
-
-
-class Location:
-    def __init__(self) -> None:
-        self.position = None
-        self.orientation = None
-
-        self.previos_position = None
-        self.previos_orientation = None
-
-    def update_position(self, position):
-        self.previos_position = self.position
-        self.position = position
-
-    def update_orientation(self, orientation):
-        self.previos_orientation = self.orientation
-        self.orientation = orientation
-
-
-class GroundTruthModel:
-    def __init__(self):
-        self.location = Location()
-        self.ball_position = None
-    
-    def is_enabled(self):
-        return self.location.position != None and self.location.orientation != None and self.ball_position != None
-    
 
 
 class PlayerInfo:

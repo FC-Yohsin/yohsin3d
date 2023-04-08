@@ -6,7 +6,7 @@ class DerivedBehavior(BaseBehavior):
         super().__init__(start_coordinates=start_coordinates, localizer=localizer)
 
     def act(self):
-        print(self.world_model.location.position)
+        print(self.localizer.my_location.position)
 
 localizer = GroundTruthLocalizer()
 behavior = DerivedBehavior(start_coordinates=(-14.4, 0.0), localizer=localizer)

@@ -1,5 +1,5 @@
 
-from ..body.body_model import EffectorJoints
+from ..body import EffectorJoints
 
 
 INT_SIZE = 4

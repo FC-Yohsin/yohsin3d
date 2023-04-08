@@ -1,7 +1,10 @@
-from .network.server import Server
-from .behavior import BaseBehavior
-from .body.enums import AgentType
 import signal, sys, traceback
+
+from .network import Server
+from .body import AgentType
+
+from .behavior import BaseBehavior
+
 
 class Agent:
     def __init__(

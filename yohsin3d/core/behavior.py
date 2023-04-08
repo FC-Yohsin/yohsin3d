@@ -1,7 +1,9 @@
-from .body.body_model import *
-from .world.world_model import *
-from .network.parser import Parser
+from .body import *
+from .world import *
 from .localizer import BaseLocalizer
+from .network import Parser
+
+
 
 class BaseBehavior:
 
@@ -99,9 +101,7 @@ class BaseBehavior:
         if self.can_rebeam():
             self.init_beamed = False
 
-        self.world_model.location.update_position(self.localizer.localize_agent_position())
-        self.world_model.location.update_orientation(self.localizer.localize_agent_orientation())
-        self.world_model.ball_position = self.localizer.localize_ball()
+        self.localizer.update()
 
         action = ""
         self.act()
