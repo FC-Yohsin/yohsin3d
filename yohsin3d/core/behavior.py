@@ -15,6 +15,10 @@ class BaseBehavior:
         self.localizer: BaseLocalizer = localizer
         self.communicator: BaseCommunicator = communicator
 
+
+        if communicator is None:
+            self.communicator = BaseCommunicator()
+
     def initialize(self, team_name):
         self.world_model = WorldModel(team_name)
         self.body_model = BodyModel(self.world_model)
@@ -107,11 +111,11 @@ class BaseBehavior:
         action = ""
         self.act()
         self.communicator.say()
-        self.communicator.hear()
         action += self.compose_action()
-
         return action
 
+    def hear(self):
+        pass
 
     def act(self):
-        pass
+        raise NotImplementedError

@@ -280,8 +280,7 @@ class Parser:
 
         valid = len(tokens) == 5
 
-        
-
+    
         if not valid:
             return valid
 
@@ -300,7 +299,6 @@ class Parser:
             is_self = True
         else:
             is_self = False
-
         
         i += 2
 
@@ -312,24 +310,16 @@ class Parser:
         hear_game_time = heard_time + delta_game_time
         orientation = tokens[3]
 
-        heard_message = HeardMessage(
+        self.communicator.heard_message.update(
             message=message,
             heard_time=hear_game_time, 
             team_name=team,
             voice_orientation=orientation
             )
-        
-        self.communicator.heard_messages.append(heard_message)
-        
-        # proccess_success, playerNum, timeBallLastSeen, ballX, ballY, playerX, playerY, fallen, _ = process_hear_message(message, hearTime+deltaServerToGameTime)
-        
-        if not is_self:
-            pass
+   
         return valid
 
     def parse(self, string):
-
-        self.communicator.reset()
 
         valid = True
 
