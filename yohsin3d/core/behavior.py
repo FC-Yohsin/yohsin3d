@@ -1,42 +1,53 @@
-from .body.body_model import *
-from .world.world_model import *
-from .network.parser import Parser
+from .body import *
+from .world import *
+from .localizer import BaseLocalizer
+from .network import Parser
+from .communicator import BaseCommunicator
+from .common import AgentLocation
 
-class Behavior:
 
-    def __init__(self, team_name: str, rsg: str, agent_unum, agent_type, start_coordinates) -> None:
-        self.rsg = rsg
-        self.team_name = team_name
-        self.agent_unum = agent_unum
-        self.start_coordinates = start_coordinates
+class BaseBehavior:
 
+    def __init__(self, beam_location: AgentLocation, localizer: BaseLocalizer = None, communicator: BaseCommunicator = None) -> None:
+        self.beam_location = beam_location
         self.monitor_msg = ""
-        self.spawn_init = False
         self.initialized = False
         self.init_beamed = False
-        self.respawning = False
+        self.localizer: BaseLocalizer = localizer
+        self.communicator: BaseCommunicator = communicator
 
-        self.world_model = WorldModel()
+    def initialize(self, team_name):
+        self.world_model = WorldModel(team_name)
         self.body_model = BodyModel(self.world_model)
 
         self.parser = Parser(world_model=self.world_model,
-                             body_model=self.body_model)
+                             body_model=self.body_model,
+                             communicator=self.communicator                             
+                             )
+        
+        
+        if self.communicator is not None:
+            self.communicator.initialize(self.world_model, self.localizer)
 
-    def spawn_message(self):
-        print("Loading rsg: " + "(scene " + self.rsg + ")")
-        return f"(scene {self.rsg})"
+        if self.localizer is not None:
+            self.localizer.initialize(self.world_model)
 
-    def beamable_playmode(self):
+    def can_rebeam(self):
         pm = self.world_model.get_playmode()
-        return pm == PlayModes.PM_BEFORE_KICK_OFF or pm == PlayModes.PM_GOAL_LEFT or pm == PlayModes.PM_GOAL_RIGHT
-
+        last_pm = self.world_model.get_last_playmode()
+        beamable_modes = [
+            PlayModes.BEFORE_KICK_OFF,
+            PlayModes.GOAL_LEFT,
+            PlayModes.GOAL_RIGHT,
+        ]
+        return pm in beamable_modes and pm != last_pm
 
     def beam_effector(self, x, y, z):
         return f"(beam {x} {y} {z})"
 
     def init_beam_effector(self):
-        x, y, z = self.start_coordinates
-        return self.beam_effector(x, y, z)
+        x, y = self.beam_location.position
+        return self.beam_effector(x, y, self.beam_location.orientation)
 
     def hj_effector(self, name, rate):
         return "({} {:.2f})".format(name, rate)
@@ -48,6 +59,9 @@ class Behavior:
             effector_name = effector.to_string()
             message += self.hj_effector(effector_name, torque)
 
+        if self.communicator is not None:
+            message += self.communicator.make_say_message()
+
         return message
 
     def get_monitor_message(self):
@@ -58,10 +72,6 @@ class Behavior:
     def set_monitor_message(self, msg):
         self.monitor_msg = msg
 
-    def respawn(self):
-        self.init_beamed = False
-        self.initialized = False
-
     def initialize_body(self):
         self.body_model.set_initial_arm(BodyParts.ARM_LEFT)
         self.body_model.set_initial_arm(BodyParts.ARM_RIGHT)
@@ -69,52 +79,47 @@ class Behavior:
         self.body_model.set_initial_leg(BodyParts.LEG_RIGHT)
         self.body_model.set_initial_head()
 
-    def spawn_nao(self):
-        self.time_when_spawned = (self.world_model.get_time())
-        self.spawn_init = True
-        msg = "(playMode BeforeKickOff)"
-        self.set_monitor_message(msg)
-        return f"(init (unum {self.agent_unum})(teamname {self.team_name}))"
+    def __can_initialize(self):
+        return self.world_model.is_my_number_set() and self.world_model.is_side_set()
 
     def initialize_nao(self):
-        
-        if not self.world_model.get_unum_set(
-        ) or not self.world_model.get_side_set():
-            return None
 
         if not self.init_beamed:
             self.init_beamed = True
             return self.init_beam_effector()
-        else:
-            self.initialized = True
-            return None
 
+        if not self.__can_initialize() or self.initialized:
+            return
 
+        self.initialize_body()
+        self.initialized = True
+        return None
+    
     def think(self, message: str) -> str:
 
         parse_success = self.parser.parse(message)
-
         if not parse_success:
             print("Parser failed to parse message..")
 
-        if not self.spawn_init:
-            return self.spawn_nao()
+        message = self.initialize_nao()
+        if message is not None:
+            return message
 
-        if not self.initialized:
-            message = self.initialize_nao()
-            if message is not None:
-                return message
+        if self.can_rebeam():
+            self.init_beamed = False
 
-        if self.respawning:
-            self.respawning = False
-            self.respawn()
-        
+        if self.localizer is not None:
+            self.localizer.update()
+
         action = ""
         self.act()
-        action += self.compose_action()
 
+        if self.communicator is not None:
+            self.communicator.say()
+            self.communicator.hear()
+            
+        action += self.compose_action()
         return action
 
     def act(self):
-       pass
-    
+        raise NotImplementedError

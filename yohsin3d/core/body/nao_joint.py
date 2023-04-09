@@ -15,7 +15,6 @@ class NaoJoint:
 
         self.scale = 1.0
 
-
     def set_target_angle(self, angle):
 
         if (angle < self.min_angle):

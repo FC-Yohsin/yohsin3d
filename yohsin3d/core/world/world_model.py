@@ -1,106 +1,39 @@
 from .enums import *
+from ..common import GroundTruthModel
+
 
 class WorldModel:
-    def __init__(self) -> None:
+    def __init__(self, teamname) -> None:
         self.cycle = 0
         self.time = -1.0
         self.gametime = -1.0
+
+        self.my_team_name = teamname
         self.opponent_team_name = None
 
-        self.force_resistance_perceptors = {'rf': None, 'lf': None}
+        self.force_resistance_perceptors = {
+            ForceResistancePerceptors.RF: None,
+            ForceResistancePerceptors.LF: None
+        }
 
-        self.playmode = PlayModes.PM_BEFORE_KICK_OFF
-        self.last_playmode = PlayModes.PM_GAME_OVER
-        self.last_different_playmode = PlayModes.PM_GAME_OVER
+        self.playmode = PlayModes.BEFORE_KICK_OFF
+        self.last_playmode = PlayModes.GAME_OVER
 
-        self.position_groundtruth = [0, 0, 0]
-        self.orientation_groundtruth = 0
-        self.ball_position_groundtruth = [0,0,0]
-    
-        self.unum = None
-        self.unum_set = False
-        
-        self.current_agent_global_position = None
-        self.last_agent_global_position = None
-        self.current_agent_global_orientation = None
-        self.current_ball_global_position = None
-        
-        self.side = SIDE_LEFT
-        self.side_set = False
+        self.groundtruth: GroundTruthModel = GroundTruthModel()
+
+        self.my_number = None
+        self.side = Sides.LEFT
         self.fallen = False
 
-        # Simple Visible Objects are Flags, Goal Posts, and Ball
-        self.simple_vision_objects = {
-                                "F1R": None,
-                                "G1L": None,
-                                "G2L": None,
-                                "F2R": None,
-                                "F2L": None,
-                                "G1R": None,
-                                "G2R": None,
-                                "F1L": None,
-                                "B": None,
-                            }
-        
-        # Complex Visible Objects includes Lines, PLayers (Body Parts)
-        # Each Player is dict like this: {'head': None, 'rlowerarm': None, 'llowerarm': None, 'rfoot': None, 'lfoot': None}
-        self.complex_vision_objects = {
-            "Yohsin01" : None,
-            "Yohsin02" : None,
-            "Yohsin03" : None,
-            "Yohsin04" : None,
-            "Yohsin05" : None,
-            "Yohsin06" : None,
-            "Yohsin07" : None,
-            "Yohsin08" : None,
-            "Yohsin09" : None,
-            "Yohsin10" : None,
-            "Yohsin11" : None,
-            
-            "Opponent01" : None,
-            "Opponent02" : None,
-            "Opponent03" : None,
-            "Opponent04" : None,
-            "Opponent05" : None,
-            "Opponent06" : None,
-            "Opponent07" : None,
-            "Opponent08" : None,
-            "Opponent09" : None,
-            "Opponent10" : None,
-            "Opponent11" : None,
-            
-            "L" : None  # List of lines
+        self.simple_vision_objects = {key: None for key in VisibleObjects}
+        self.teammate_info = {player: PlayerInfo() for player in range(1, 12)}
+        self.opponent_info = {player: PlayerInfo() for player in range(1, 12)}
 
-        }
-        
-        self.hingeJointStates = {
-            'hj1': 0.0,  # Neck Yaw   
-            'hj2': 0.0,  # Neck Pitch    
-            'raj1': 0.0,  # Right Shoulder Pitch
-            'raj2': 0.0,  # Right Shoulder Yaw
-            'raj3': 0.0,  # Right Arm Roll
-            'raj4': 0.0,  # Right Arm Yaw
-            'laj1': 0.0,  # Left Shoulder Pitch
-            'laj2': 0.0,  # Left Shoulder Yaw
-            'laj3': 0.0,  # Left Arm Roll
-            'laj4': 0.0,  # Left Arm Yaw
-            'rlj1': 0.0,  # Right Hip YawPitch
-            'rlj2': 0.0,  # Right Hip Roll
-            'rlj3': 0.0,  # Right Hip Pitch
-            'rlj4': 0.0,  # Right Knee Pitch
-            'rlj5': 0.0,  # Right Foot Pitch
-            'rlj6': 0.0,  # Right Foot Roll
-            'llj1': 0.0,  # Left Hip YawPitch
-            'llj2': 0.0,  # Left Hip Roll
-            'llj3': 0.0,  # Left Hip Pitch
-            'llj4': 0.0,  # Left Knee Pitch
-            'llj5': 0.0,  # Left Foot Pitch
-            'llj6': 0.0,
-        }
+        # Need to see the concept of lines
+        self.lines = None
 
- 
-
-        
+        self.score_left = None
+        self.score_right = None
 
     def is_fallen(self):
         return self.fallen
@@ -153,32 +86,23 @@ class WorldModel:
     def set_last_playmode(self, last_playmode):
         self.last_playmode = last_playmode
 
-    def get_last_different_playmode(self):
-        return self.last_different_playmode
+    def get_my_number(self):
+        return self.my_number
 
-    def set_last_different_playmode(self, last_different_playmode):
-        self.last_different_playmode = last_different_playmode
+    def set_my_number(self, num):
+        self.my_number = num
 
-    def get_unum(self):
-        return self.unum
-
-    def set_unum(self, unum):
-        self.unum = unum
-
-    def get_unum_set(self):
-        return self.unum_set
-
-    def set_unum_set(self, unum_set):
-        self.unum_set = unum_set
+    def is_my_number_set(self):
+        return self.my_number != None
 
     def set_position_groundtruth(self, new_pos):
-        self.position_groundtruth = new_pos
-        
+        self.groundtruth.my_location.update_position(new_pos)
+
     def set_orientation_groundtruth(self, new_orientation):
-        self.orientation_groundtruth = new_orientation
-        
+        self.groundtruth.my_location.update_orientation(new_orientation)
+
     def set_ball_position_groundtruth(self, new_pos):
-        self.ball_position_groundtruth = new_pos
+        self.groundtruth.ball_position = new_pos
 
     def get_side(self):
         return self.side
@@ -186,8 +110,23 @@ class WorldModel:
     def set_side(self, side):
         self.side = side
 
-    def get_side_set(self):
-        return self.side_set
+    def is_side_set(self):
+        return self.side != None
 
-    def set_side_set(self, side_set):
-        self.side_set = side_set
+
+class PlayerInfo:
+    def __init__(self, head=None, rlowerarm=None, llowerarm=None, rfoot=None, lfoot=None):
+        self.head = head
+        self.rlowerarm = rlowerarm
+        self.llowerarm = llowerarm
+        self.rfoot = rfoot
+        self.lfoot = lfoot
+
+        self.is_visible = False
+
+    def update_from_dict(self, dict):
+        self.head = dict['head']
+        self.rlowerarm = dict['rlowerarm']
+        self.llowerarm = dict['llowerarm']
+        self.rfoot = dict['rfoot']
+        self.lfoot = dict['lfoot']

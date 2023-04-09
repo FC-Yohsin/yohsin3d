@@ -1,9 +1,12 @@
-import struct, socket
-INT_SIZE = 4
+import struct
+import socket
+from .constants import *
+
 
 class Server:
     def __init__(self) -> None:
-        self.socket: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket: socket.socket = socket.socket(
+            socket.AF_INET, socket.SOCK_STREAM)
 
     def connect(self, host, port):
         self.socket.connect((host, port))
@@ -21,12 +24,12 @@ class Server:
     def get_message(self):
         length = struct.unpack("!I", self.recieve_message(INT_SIZE))[0]
         buffer = self.recieve_message(length)
-        return buffer 
+        return buffer
 
     def put_message(self, message: str):
         if len(message.strip()) == 0:
             return
-        
+
         # convert message to ASCII encoded byte string
         length = len(message)
         bmessage = bytes(message, 'ASCII')
@@ -41,7 +44,6 @@ class Server:
         bytesSent = 0
         while (bytesSent < length):
             bytesSent += self.socket.send(bmessage[bytesSent:])
-
 
     def close(self):
         self.socket.close()
