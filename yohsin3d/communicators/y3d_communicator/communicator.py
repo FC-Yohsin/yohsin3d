@@ -1,5 +1,5 @@
-from ..common.constants import *
-from .base_communicator import BaseCommunicator
+from ...core.common.constants import *
+from ...core import BaseCommunicator
 from .bit_codec import BitCodec
 
 class CommunicationData:
@@ -12,10 +12,12 @@ class CommunicationData:
         self.my_y = my_y
 
 
-class Yohsin3dCommunicator(BaseCommunicator):
+class Y3dCommunicator(BaseCommunicator):
 
     def __init__(self) -> None:
         super().__init__()
+        self.heard_data = CommunicationData()
+        self.heard_data_type = CommunicationData
 
     def data_to_bits(self, time, ball_x, ball_y, my_x, my_y):
         bits = []
@@ -78,24 +80,23 @@ class Yohsin3dCommunicator(BaseCommunicator):
         return time, ballX, ballY, agentX, agentY
 
 
-    def hear(self) -> CommunicationData:   
+    def hear(self) -> None:   
         heard_message = self.heard_message
         message = heard_message.message
 
-        if message is not None:
-        
-            bits = BitCodec.string_to_bits(message)
-            time, ballX, ballY, agentX, agentY = self.bits_to_data(bits)
+        if message is None:
+            self.heard_data = CommunicationData()
+            return 
+    
+        bits = BitCodec.string_to_bits(message)
+        time, ballX, ballY, agentX, agentY = self.bits_to_data(bits)
 
-            heard_time = heard_message.heard_time
-            delta_game_time = self.world_model.get_time() - self.world_model.get_gametime()
-            heard_server_time = heard_time + delta_game_time
+        heard_time = heard_message.heard_time
+        delta_game_time = self.world_model.get_time() - self.world_model.get_gametime()
+        heard_server_time = heard_time + delta_game_time
 
-            time += int((heard_server_time-time)/1310.72)*1310.72
-            cycles = int(time * 50 + 0.1)
-            unum = (cycles % (NUM_AGENTS*2)) // 2 + 1
-            return CommunicationData(unum, time, ballX, ballY, agentX, agentY)
-        
-        return CommunicationData()
-
-
+        time += int((heard_server_time-time)/1310.72)*1310.72
+        cycles = int(time * 50 + 0.1)
+        unum = (cycles % (NUM_AGENTS*2)) // 2 + 1
+        self.heard_data = CommunicationData(unum, time, ballX, ballY, agentX, agentY)
+    

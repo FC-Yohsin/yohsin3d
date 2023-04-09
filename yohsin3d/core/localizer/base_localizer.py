@@ -12,4 +12,4 @@ class BaseLocalizer:
         self.world_model = world_model
 
     def update(self) -> None:
-        pass
+        raise NotImplementedError

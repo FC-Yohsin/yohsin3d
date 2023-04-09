@@ -5,6 +5,7 @@ from .network import Parser
 from .communicator import BaseCommunicator
 from .common import AgentLocation
 
+
 class BaseBehavior:
 
     def __init__(self, beam_location: AgentLocation, localizer: BaseLocalizer = None, communicator: BaseCommunicator = None) -> None:
@@ -15,10 +16,6 @@ class BaseBehavior:
         self.localizer: BaseLocalizer = localizer
         self.communicator: BaseCommunicator = communicator
 
-
-        if communicator is None:
-            self.communicator = BaseCommunicator()
-
     def initialize(self, team_name):
         self.world_model = WorldModel(team_name)
         self.body_model = BodyModel(self.world_model)
@@ -28,8 +25,12 @@ class BaseBehavior:
                              communicator=self.communicator                             
                              )
         
-        self.communicator.initialize(self.world_model, self.localizer)
-        self.localizer.initialize(self.world_model)
+        
+        if self.communicator is not None:
+            self.communicator.initialize(self.world_model, self.localizer)
+
+        if self.localizer is not None:
+            self.localizer.initialize(self.world_model)
 
     def can_rebeam(self):
         pm = self.world_model.get_playmode()
@@ -57,8 +58,9 @@ class BaseBehavior:
             torque = self.body_model.compute_torque(effector)
             effector_name = effector.to_string()
             message += self.hj_effector(effector_name, torque)
-    
-        message += self.communicator.make_say_message()
+
+        if self.communicator is not None:
+            message += self.communicator.make_say_message()
 
         return message
 
@@ -92,7 +94,7 @@ class BaseBehavior:
         self.initialize_body()
         self.initialized = True
         return None
-
+    
     def think(self, message: str) -> str:
 
         parse_success = self.parser.parse(message)
@@ -106,16 +108,18 @@ class BaseBehavior:
         if self.can_rebeam():
             self.init_beamed = False
 
-        self.localizer.update()
+        if self.localizer is not None:
+            self.localizer.update()
 
         action = ""
         self.act()
-        self.communicator.say()
+
+        if self.communicator is not None:
+            self.communicator.say()
+            self.communicator.hear()
+            
         action += self.compose_action()
         return action
-
-    def hear(self):
-        pass
 
     def act(self):
         raise NotImplementedError

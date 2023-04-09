@@ -31,7 +31,10 @@ class BaseCommunicator:
         self.localizer = localizer
 
     def can_say(self): 
-
+        
+        if not self.world_model.is_my_number_set():
+            return False
+        
         server_time = self.world_model.get_time()
         cycles = int(server_time * 50 + 0.1)
         is_my_turn = (cycles % (NUM_AGENTS * 2) == (self.world_model.my_number - 1) * 2)
@@ -45,10 +48,9 @@ class BaseCommunicator:
         return ""
     
     def hear(self):
-        print(self.heard_message.message)
+        raise NotImplementedError
 
     def say(self):
-        self.said_message = f"Hello{self.world_model.my_number}"
-        self.hear()
+        raise NotImplementedError
     
 

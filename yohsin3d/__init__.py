@@ -1,1 +1,1 @@
-from .core import Agent, BaseBehavior, BaseLocalizer, BaseCommunicator
+from .core import Agent, AgentLocation, BaseBehavior, BaseLocalizer, BaseCommunicator

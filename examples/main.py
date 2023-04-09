@@ -1,20 +1,16 @@
-from yohsin3d import Agent, BaseBehavior
-from yohsin3d.localizers import GroundTruthLocalizer
-from yohsin3d.core import AgentLocation
-
+from yohsin3d import Agent, AgentLocation, BaseBehavior, BaseCommunicator
 
 
 class DerivedBehavior(BaseBehavior):
-    def __init__(self, start_coordinates: AgentLocation=None, localizer=None) -> None:
-        super().__init__(beam_location=start_coordinates, localizer=localizer)
+    def __init__(self, start_coordinates: AgentLocation=None, communicator=None, localizer=None) -> None:
+        super().__init__(beam_location=start_coordinates, communicator=communicator,  localizer=localizer)
 
     def act(self):
         pass
         
 
 coords =  AgentLocation((-14.4, 0.0), 0)
-localizer = GroundTruthLocalizer()
-behavior = DerivedBehavior(start_coordinates=coords, localizer=localizer)
+behavior = DerivedBehavior(start_coordinates=coords)
 
 agent = Agent(agent_num=2,
               global_port=3100,
