@@ -22,10 +22,9 @@ class BaseBehavior:
 
         self.parser = Parser(world_model=self.world_model,
                              body_model=self.body_model,
-                             communicator=self.communicator                             
+                             communicator=self.communicator
                              )
-        
-        
+
         if self.communicator is not None:
             self.communicator.initialize(self.world_model, self.localizer)
 
@@ -94,7 +93,7 @@ class BaseBehavior:
         self.initialize_body()
         self.initialized = True
         return None
-    
+
     def think(self, message: str) -> str:
 
         parse_success = self.parser.parse(message)
@@ -117,7 +116,7 @@ class BaseBehavior:
         if self.communicator is not None:
             self.communicator.say()
             self.communicator.hear()
-            
+
         action += self.compose_action()
         return action
 

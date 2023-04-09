@@ -1,5 +1,5 @@
 from typing import List
-communication_alphabet =  "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*#"
+communication_alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*#"
 
 
 class BitCodec:
@@ -7,7 +7,7 @@ class BitCodec:
     @staticmethod
     def bits_to_int(bits: List, start, end):
         if start < 0 or end >= len(bits):
-            return 0 
+            return 0
 
         n = 0
         for i in range(start, end+1):
@@ -15,7 +15,7 @@ class BitCodec:
             n += bits[i]
 
         return n
-    
+
     @staticmethod
     def int_to_bits(n: int, num_bits: int) -> List[int]:
         if n < 0:
@@ -27,7 +27,7 @@ class BitCodec:
             n //= 2
 
         return bits
-    
+
     @staticmethod
     def bits_to_string(bitfield_list):
         message = ""
@@ -66,17 +66,16 @@ class BitCodec:
                 return None
 
         return bits
-    
 
     @staticmethod
     def encode_float(number, min_value, max_value, num_bits=10):
         clipped = min(max(number, min_value), max_value)
         max_size = (1 << num_bits) - 1
-        value = int(((clipped - min_value) * max_size) / (max_value - min_value) + 0.5)
+        value = int(((clipped - min_value) * max_size) /
+                    (max_value - min_value) + 0.5)
         return BitCodec.int_to_bits(value, num_bits)
-    
+
     @staticmethod
     def decode_bit_array(bits, min_value, max_value, num_bits=10):
         value = BitCodec.bits_to_int(bits, 0, num_bits - 1)
         return min_value + (value * (max_value - min_value)) / ((1 << num_bits) - 1)
-    
