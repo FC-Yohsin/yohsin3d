@@ -4,6 +4,7 @@ from ..body import *
 from ..world import *
 from ..communicator import *
 from .constants import *
+from ..common import perceptor_to_joint
 
 
 class Parser:
@@ -106,7 +107,7 @@ class Parser:
         return re.findall(r'\(([^()]*(?:\(([^()]*(?:\((?:[^()]*(?:\([^()]*\)[^()]*)*)\)[^()]*)*)\)[^()]*)*)\)', string)
 
     def __parse_hinge_joint(self, string):
-        effector_name = joint_to_effector[self.__parser_helper("n", string)]
+        effector_name = perceptor_to_joint[self.__parser_helper("n", string)]
         effector_angle = float(self.__parser_helper("ax", string))
 
         self.body_model.set_current_angle(effector_name, effector_angle)

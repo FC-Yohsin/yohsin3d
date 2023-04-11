@@ -3,7 +3,7 @@ from .world import *
 from .localizer import BaseLocalizer
 from .network import Parser
 from .communicator import BaseCommunicator
-from .common import AgentLocation
+from .common import AgentLocation, Joint
 
 
 class BaseBehavior:
@@ -53,10 +53,10 @@ class BaseBehavior:
 
     def compose_action(self):
         message = ""
-        for effector in EffectorJoints:
-            torque = self.body_model.compute_torque(effector)
-            effector_name = effector.to_string()
-            message += self.hj_effector(effector_name, torque)
+        for joint in Joint:
+            torque = self.body_model.compute_torque(joint)
+            joint_name = joint.effector_name
+            message += self.hj_effector(joint_name, torque)
 
         if self.communicator is not None:
             message += self.communicator.make_say_message()
@@ -119,6 +119,8 @@ class BaseBehavior:
 
         action += self.compose_action()
         return action
+    
+
 
     def act(self):
         raise NotImplementedError
