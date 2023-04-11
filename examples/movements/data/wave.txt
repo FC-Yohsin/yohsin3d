@@ -1,0 +1,14 @@
+start phase 0: 0.5 
+target rae1 -120 15.0 
+target rae2 -95 15.0 
+target rae3 -120 15.0 
+target rae4 90 15.0 
+end phase
+
+start phase 1: 0.5 
+target rae1 -120 15.0 
+target rae2 -95 15.0 
+target rae3 -120 15.0 
+target rae4 0 15.0 
+end phase
+

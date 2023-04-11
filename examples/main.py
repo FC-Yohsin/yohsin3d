@@ -1,4 +1,4 @@
-from yohsin3d import Agent, AgentLocation, BaseBehavior, BaseCommunicator
+from yohsin3d import Agent, AgentLocation, BaseBehavior
 
 
 class DerivedBehavior(BaseBehavior):
