@@ -33,7 +33,9 @@ class PlayModes(Enum):
 
 class ForceResistancePerceptors(Enum):
     RF = 'rf'
+    RF1 = 'rf1'
     LF = 'lf'
+    LF1 = 'lf1'
 
 
 class VisibleObjects(Enum):

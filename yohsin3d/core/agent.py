@@ -87,11 +87,18 @@ class Agent:
                     self.done()
                     exit()
 
-    def start(self):
+    def handler(self):
         def signal_handler(sig, _):
             print('\nExiting!')
             sys.exit(0)
 
         signal.signal(signal.SIGINT, signal_handler)
+    
+    def start(self, custom_handler=None):
+        if custom_handler:
+            custom_handler()
+        else:
+            self.handler()
+
         self.run()
         self.done()
