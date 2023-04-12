@@ -17,7 +17,6 @@ class HeardMessage:
         self.voice_orientation = voice_orientation
 
 
-
 class BaseCommunicator:
 
     def __init__(self) -> None:
@@ -30,27 +29,27 @@ class BaseCommunicator:
         self.world_model = world_model
         self.localizer = localizer
 
-    def can_say(self): 
-        
+    def can_say(self):
+
         if not self.world_model.is_my_number_set():
             return False
-        
+
         server_time = self.world_model.get_time()
         cycles = int(server_time * 50 + 0.1)
-        is_my_turn = (cycles % (NUM_AGENTS * 2) == (self.world_model.my_number - 1) * 2)
-        is_message_valid = (self.said_message.strip() != "" and self.said_message is not None)
+        is_my_turn = (cycles % (NUM_AGENTS * 2) ==
+                      (self.world_model.my_number - 1) * 2)
+        is_message_valid = (self.said_message.strip() !=
+                            "" and self.said_message is not None)
 
         return is_my_turn and is_message_valid
-        
+
     def make_say_message(self):
         if self.can_say():
             return "(say " + self.said_message + ")"
         return ""
-    
+
     def hear(self):
         raise NotImplementedError
 
     def say(self):
         raise NotImplementedError
-    
-

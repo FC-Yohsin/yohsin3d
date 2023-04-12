@@ -4,6 +4,7 @@ from ..body import *
 from ..world import *
 from ..communicator import *
 from .constants import *
+from ..common import perceptor_to_joint
 
 
 class Parser:
@@ -17,7 +18,7 @@ class Parser:
         self.world_model: WorldModel = world_model
         self.body_model: BodyModel = body_model
         self.communicator: BaseCommunicator = communicator
-        
+
         self.side = Sides.LEFT
 
     def tokenise(self, s) -> List[str]:
@@ -106,7 +107,7 @@ class Parser:
         return re.findall(r'\(([^()]*(?:\(([^()]*(?:\((?:[^()]*(?:\([^()]*\)[^()]*)*)\)[^()]*)*)\)[^()]*)*)\)', string)
 
     def __parse_hinge_joint(self, string):
-        effector_name = joint_to_effector[self.__parser_helper("n", string)]
+        effector_name = perceptor_to_joint[self.__parser_helper("n", string)]
         effector_angle = float(self.__parser_helper("ax", string))
 
         self.body_model.set_current_angle(effector_name, effector_angle)
@@ -175,10 +176,12 @@ class Parser:
 
             if team_name == self.world_model.my_team_name:
                 self.world_model.teammate_info[agent_num].is_visible = True
-                self.world_model.teammate_info[agent_num].update_from_dict(player_info)
+                self.world_model.teammate_info[agent_num].update_from_dict(
+                    player_info)
             else:
                 self.world_model.opponent_info[agent_num].is_visible = True
-                self.world_model.opponent_info[agent_num].update_from_dict(player_info)
+                self.world_model.opponent_info[agent_num].update_from_dict(
+                    player_info)
 
         return valid
 
@@ -266,8 +269,6 @@ class Parser:
                 valid = False
 
         return valid
-    
-
 
     def __parse_hear(self: 'Parser', string):
 
@@ -280,7 +281,6 @@ class Parser:
 
         valid = len(tokens) == 5
 
-    
         if not valid:
             return valid
 
@@ -288,7 +288,7 @@ class Parser:
 
         if len(tokens) == 5:
             team = tokens[i]
-            i+=1
+            i += 1
             if team != self.world_model.my_team_name:
                 self.world_model.opponent_team_name = team
                 return True
@@ -299,7 +299,7 @@ class Parser:
             is_self = True
         else:
             is_self = False
-        
+
         i += 2
 
         if i >= len(tokens):
@@ -312,11 +312,11 @@ class Parser:
 
         self.communicator.heard_message.update(
             message=message,
-            heard_time=hear_game_time, 
+            heard_time=hear_game_time,
             team_name=team,
             voice_orientation=orientation
-            )
-   
+        )
+
         return valid
 
     def parse(self, string):

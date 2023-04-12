@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/fc-yohsin/yohsin3d/badge)](https://www.codefactor.io/repository/github/fc-yohsin/yohsin3d)
+
 # Yohsin3d: Python Framework for RoboCup 3D Soccer Agents
 
 Yohsin3d is an open-source Python framework that simplifies the development of RoboCup 3D soccer agents. It handles low-level details like server communication, basic locomotion, and localization, allowing you to focus on adding functionality to the agents. With extensive machine learning support and a thriving community, Python is an excellent choice for building intelligent and adaptive soccer agents.

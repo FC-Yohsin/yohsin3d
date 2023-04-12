@@ -4,6 +4,7 @@ from ..core import BaseLocalizer
 
 GROUNDTRUTH_NOT_ENABLED_ERROR = "Ground truth not enabled"
 
+
 class GroundTruthLocalizer(BaseLocalizer):
     def _init_(self) -> None:
         super()._init_()
