@@ -1,7 +1,9 @@
-import threading, time
+import threading
+import time
 from .agent import Agent
 
 from typing import List
+
 
 class Spawner:
     def __init__(self) -> None:
@@ -17,10 +19,10 @@ class Spawner:
     def start(self) -> None:
         threads: List[threading.Thread] = []
         for agent in self.agents:
-            threads.append(threading.Thread(target=agent.start, args=(lambda: None, )))
+            threads.append(threading.Thread(
+                target=agent.start, args=(lambda: None, )))
         for thread in threads:
             thread.start()
             time.sleep(1)
         for thread in threads:
             thread.join()
-

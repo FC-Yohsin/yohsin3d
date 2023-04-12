@@ -11,7 +11,7 @@ class CommunicationData:
         self.ball_y = ball_y
         self.my_x = my_x
         self.my_y = my_y
-    
+
     def __str__(self):
         return f"Agent {self.heard_from} heard: time={self.time}, ball_x={self.ball_x}, ball_y={self.ball_y}, position = ({self.my_x}, {self.my_y})"
 

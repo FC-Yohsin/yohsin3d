@@ -93,7 +93,7 @@ class Agent:
             sys.exit(0)
 
         signal.signal(signal.SIGINT, signal_handler)
-    
+
     def start(self, custom_handler=None):
         if custom_handler:
             custom_handler()

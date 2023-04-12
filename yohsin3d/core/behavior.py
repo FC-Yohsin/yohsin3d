@@ -119,8 +119,6 @@ class BaseBehavior:
 
         action += self.compose_action()
         return action
-    
-
 
     def act(self):
         raise NotImplementedError

@@ -1,5 +1,6 @@
 from enum import Enum, IntEnum
 
+
 class AgentType(IntEnum):
     NAO = 0
     NAO_HETERO_1 = 1

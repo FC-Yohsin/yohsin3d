@@ -1,7 +1,9 @@
-from enum import  IntEnum
+from enum import IntEnum
 from typing import Tuple
 
 #  Effector Joints
+
+
 class Joint(IntEnum):
     H1 = 0  # Head Yaw
     H2 = 1  # Head Pitch
@@ -42,6 +44,7 @@ class Joint(IntEnum):
     @property
     def effector_name(self) -> str:
         return joint_to_effector[self]
+
 
 joint_to_range = {
     Joint.H1: (-120.0, 120.0),

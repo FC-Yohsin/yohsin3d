@@ -7,6 +7,7 @@ from ..common import Joint
 
 from typing import List
 
+
 class BodyModel:
     def __init__(self, worldModel: WorldModel) -> None:
         self.gyro_rates = (0, 0, 0)
@@ -129,8 +130,8 @@ class BodyModel:
         for joint in Joint:
             joint_range = joint.range
             self.joints_list[joint] = NaoJoint(joint_range[0],
-                                                  joint_range[1],
-                                                  2.0)
+                                               joint_range[1],
+                                               2.0)
 
     def get_accel_rates(self):
         return self.accel_rates

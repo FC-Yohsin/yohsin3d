@@ -1,5 +1,6 @@
 from yohsin3d import BaseCommunicator
 
+
 class CustomCommunicator(BaseCommunicator):
     def __init__(self) -> None:
         super().__init__()
@@ -12,5 +13,3 @@ class CustomCommunicator(BaseCommunicator):
         heard_message = self.heard_message
         message = heard_message.message
         self.heard_data = message
-
-

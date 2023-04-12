@@ -14,8 +14,8 @@ for i in range(1, 3):
                   host_name="localhost",
                   team_name="MyTeam",
                   behavior=behavior,
-              )
-    
+                  )
+
     agent_spawner.add(agent)
 
 agent_spawner.start()

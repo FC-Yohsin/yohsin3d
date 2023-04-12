@@ -1,9 +1,10 @@
 from typing import List
 import re
 
-from ..core.common import  Joint, joint_to_effector, effector_to_joint
+from ..core.common import Joint, joint_to_effector, effector_to_joint
 from ..core.body import BodyModel
 from ..core.world import WorldModel
+
 
 class MovementJoint:
     def __init__(self, joint: Joint, angle: float, speed: float):
@@ -54,7 +55,8 @@ class Movement:
         file = open(path, 'r')
         movement = Movement()
         content = file.read()
-        phases: list = list(re.findall(r"start phase((.|\n)*?)end phase", content))
+        phases: list = list(re.findall(
+            r"start phase((.|\n)*?)end phase", content))
 
         for phase in phases:
             phase_details: str = phase[0]
@@ -62,7 +64,7 @@ class Movement:
             first_line = lines[0].strip()
             wait_time = float(first_line.split(":")[1])
             movement_phase = MovementPhase(wait_time)
-            lines = lines[1:] 
+            lines = lines[1:]
             for line in lines:
                 line = line.strip()
                 if line == "":
@@ -82,7 +84,6 @@ class Movement:
         file.close()
         return movement
 
-
     def is_finished(self):
         finished = self.current_index >= len(self.phases)
         return finished
@@ -95,7 +96,7 @@ class Movement:
         self.phases.append(phase)
 
     def perform(self, agent: BodyModel, world: WorldModel) -> None:
-        
+
         if self.is_finished():
             return
 
@@ -107,33 +108,31 @@ class Movement:
             current_phase.set_start_time(current_time)
             current_phase.has_started = True
 
-        elapsed_time = current_time - current_phase.start_time  
+        elapsed_time = current_time - current_phase.start_time
 
         if elapsed_time >= current_phase.wait_time:
             self.current_index += 1
-
 
     def display(self):
         for phase in self.phases:
             print(f'Phase: {phase.wait_time}')
             for movement_joint in phase.movement_joints:
-                print(f'    {movement_joint.joint}: {movement_joint.angle} {movement_joint.speed}')
+                print(
+                    f'    {movement_joint.joint}: {movement_joint.angle} {movement_joint.speed}')
 
             print()
-
 
     def reset(self):
         self.current_index = 0
         for phase in self.phases:
             phase.reset()
 
-
     def write_to_file(self, path):
         file = open(path, 'w')
 
         state = 0
         for phase in self.phases:
-            time= phase.wait_time
+            time = phase.wait_time
             data = f"start phase {state}: {time} "
             file.write(data)
             file.write('\n')
@@ -146,7 +145,7 @@ class Movement:
 
                 file.write(data)
                 file.write('\n')
-                
+
             file.write("end phase")
             file.write('\n')
             file.write('\n')
