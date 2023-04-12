@@ -1,12 +1,12 @@
 from yohsin3d import Spawner, Agent, AgentLocation
-from soccer_behavior import SoccerBehavior
+from behavior import Y3dCommunicatorBehavior
 from team_info import types, positions
 
 agent_spawner = Spawner()
 
-for i in range(1, 12):
+for i in range(1, 3):
     coords = AgentLocation(positions[i], 0)
-    behavior = SoccerBehavior(start_coordinates=coords)
+    behavior = Y3dCommunicatorBehavior(start_coordinates=coords)
 
     agent = Agent(agent_num=i,
                   agent_type=types[i],
