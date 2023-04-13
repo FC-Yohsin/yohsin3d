@@ -2,6 +2,7 @@ from enum import Enum
 import socket
 from typing import Tuple
 
+
 class HeaderType(Enum):
     ANNOTATION = (2, 0)
     DRAW_CIRCLE = (1, 0)
@@ -9,14 +10,16 @@ class HeaderType(Enum):
     AGENT_ANNOTATION = (2, 1)
     CLEAR_ANNOTATION = (2, 2)
 
+
 class Color(Enum):
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
 
+
 class RvDraw():
 
-    def __init__(self, port:int=3300, host:str='localhost') -> None:
+    def __init__(self, port: int = 3300, host: str = 'localhost') -> None:
         self.PORT = port
         self.HOST = host
         assert isinstance(port, int), "Port must be an integer"
@@ -57,9 +60,7 @@ class RvDraw():
         buffer.append(header.value[0])
         buffer.append(header.value[1])
 
-    
-
-    def add_annotation(self, text: str, position: Tuple[float,float,float], name: str, color: Color=Color.RED) -> None:
+    def add_annotation(self, text: str, position: Tuple[float, float, float], name: str, color: Color = Color.RED) -> None:
         buffer = bytearray(0)
 
         self.__header_to_buffer(buffer, HeaderType.ANNOTATION)
@@ -74,7 +75,7 @@ class RvDraw():
 
         self.__send_message(bytes(buffer), len(buffer))
 
-    def draw_circle(self, center: Tuple[float,float,float], radius: float, name: str, color: Color = Color.RED, thickness: float = 2.0) -> None:
+    def draw_circle(self, center: Tuple[float, float, float], radius: float, name: str, color: Color = Color.RED, thickness: float = 2.0) -> None:
         buffer = bytearray(0)
         self.__header_to_buffer(buffer, HeaderType.DRAW_CIRCLE)
         self.__float_to_buffer(buffer, center[0])
@@ -87,7 +88,7 @@ class RvDraw():
         self.__swap_buffer(buffer, name)
         self.__send_message(bytes(buffer), len(buffer))
 
-    def draw_line(self, pointA: Tuple[float], pointB: Tuple[float,float,float], setName: str, color: Color = Color.BLUE, thickness: float = 2.0) -> None:
+    def draw_line(self, pointA: Tuple[float], pointB: Tuple[float, float, float], setName: str, color: Color = Color.BLUE, thickness: float = 2.0) -> None:
         buffer = bytearray(0)
         self.__header_to_buffer(buffer, HeaderType.DRAW_LINE)
         self.__float_to_buffer(buffer, pointA[0])
@@ -104,7 +105,7 @@ class RvDraw():
 
         self.__send_message(bytes(buffer), len(buffer))
 
-    def add_agent_annotation(self, text: str, color: Color=Color.RED) -> None:
+    def add_agent_annotation(self, text: str, color: Color = Color.RED) -> None:
         buffer = bytearray(0)
 
         self.__header_to_buffer(buffer, HeaderType.AGENT_ANNOTATION)
@@ -122,4 +123,3 @@ class RvDraw():
         buffer.append(agentNum)
 
         self.__sendMessage(bytes(buffer), len(buffer))
-

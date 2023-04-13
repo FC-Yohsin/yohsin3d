@@ -10,7 +10,8 @@ class DrawingBehavior(BaseBehavior):
 
     def act(self):
         if self.localizer.my_location.position:
-            rvDraw.draw_circle(self.localizer.my_location.position, radius=0.15, color=Color.BLUE, name="my_location")
+            rvDraw.draw_circle(self.localizer.my_location.position,
+                               radius=0.15, color=Color.BLUE, name="my_location")
         if self.localizer.ball_position:
-            rvDraw.draw_circle(self.localizer.ball_position, radius=0.1, color=Color.RED, name="ball_position")
-     
+            rvDraw.draw_circle(self.localizer.ball_position,
+                               radius=0.1, color=Color.RED, name="ball_position")
