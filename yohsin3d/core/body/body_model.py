@@ -14,6 +14,7 @@ class BodyModel:
         self.prev_gyro_rates = (0, 0, 0)
         self.accel_rates = (0, 0, 0)
         self.walk_angle = None
+        self.agent_type = None
 
         self.world_model = worldModel
         self.joints_list: List[NaoJoint] = [
