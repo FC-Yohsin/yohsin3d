@@ -28,8 +28,9 @@ class BodyModel:
 
     def set_initial_head(self):
 
-        self.set_target_angle(Joint.H1, 0)
-        self.set_target_angle(Joint.H2, -45)
+        gain = 7.0
+        self.set_target_angle(Joint.H1, 0, gain)
+        self.set_target_angle(Joint.H2, -45, gain)
 
     def target_reached(self, joint: Joint):
         return abs(self.joints_list[joint].current_angle -
@@ -43,19 +44,21 @@ class BodyModel:
         ang3 = 0
         ang4 = -50.0
 
+        gain = 7.0
+
         if (arm == BodyParts.ARM_LEFT):
 
-            self.set_target_angle(Joint.LA1, ang1)
-            self.set_target_angle(Joint.LA2, ang2)
-            self.set_target_angle(Joint.LA3, ang3)
-            self.set_target_angle(Joint.LA4, ang4)
+            self.set_target_angle(Joint.LA1, ang1, gain)
+            self.set_target_angle(Joint.LA2, ang2, gain)
+            self.set_target_angle(Joint.LA3, ang3, gain)
+            self.set_target_angle(Joint.LA4, ang4, gain)
 
         else:
 
-            self.set_target_angle(Joint.RA1, ang1)
-            self.set_target_angle(Joint.RA2, -ang2)
-            self.set_target_angle(Joint.RA3, -ang3)
-            self.set_target_angle(Joint.RA4, -ang4)
+            self.set_target_angle(Joint.RA1, ang1, gain)
+            self.set_target_angle(Joint.RA2, -ang2, gain)
+            self.set_target_angle(Joint.RA3, -ang3, gain)
+            self.set_target_angle(Joint.RA4, -ang4, gain)
 
     def set_initial_leg(self, leg) -> bool:
 
@@ -66,23 +69,25 @@ class BodyModel:
         ang5 = 18.0
         ang6 = -6.0
 
+        gain = 7.0
+
         if (leg == BodyParts.LEG_LEFT):
 
-            self.set_target_angle(Joint.LL1, ang1)
-            self.set_target_angle(Joint.LL2, ang2)
-            self.set_target_angle(Joint.LL3, ang3)
-            self.set_target_angle(Joint.LL4, ang4)
-            self.set_target_angle(Joint.LL5, ang5)
-            self.set_target_angle(Joint.LL6, ang6)
+            self.set_target_angle(Joint.LL1, ang1, gain)
+            self.set_target_angle(Joint.LL2, ang2, gain)
+            self.set_target_angle(Joint.LL3, ang3, gain)
+            self.set_target_angle(Joint.LL4, ang4, gain)
+            self.set_target_angle(Joint.LL5, ang5, gain)
+            self.set_target_angle(Joint.LL6, ang6, gain)
 
         else:
 
-            self.set_target_angle(Joint.RL1, ang1)
-            self.set_target_angle(Joint.RL2, -ang2)
-            self.set_target_angle(Joint.RL3, ang3)
-            self.set_target_angle(Joint.RL4, ang4)
-            self.set_target_angle(Joint.RL5, ang5)
-            self.set_target_angle(Joint.RL6, -ang6)
+            self.set_target_angle(Joint.RL1, ang1, gain)
+            self.set_target_angle(Joint.RL2, -ang2, gain)
+            self.set_target_angle(Joint.RL3, ang3, gain)
+            self.set_target_angle(Joint.RL4, ang4, gain)
+            self.set_target_angle(Joint.RL5, ang5, gain)
+            self.set_target_angle(Joint.RL6, -ang6, gain)
 
     def set_current_angle(self, joint: Joint, angle):
         self.previous_joints_list[joint] = self.joints_list[

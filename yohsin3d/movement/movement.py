@@ -49,12 +49,10 @@ class Movement:
         self.phases: List[MovementPhase] = []
         self.current_index = 0
 
-    @staticmethod
-    def from_file(path):
 
-        file = open(path, 'r')
+    @staticmethod
+    def from_string(content: str):
         movement = Movement()
-        content = file.read()
         phases: list = list(re.findall(
             r"start phase((.|\n)*?)end phase", content))
 
@@ -81,8 +79,17 @@ class Movement:
 
             movement.add(movement_phase)
 
+        
+        return movement
+
+    @staticmethod
+    def from_file(path):
+        file = open(path, 'r')
+        content = file.read()
+        movement = Movement.from_string(content)
         file.close()
         return movement
+
 
     def is_finished(self):
         finished = self.current_index >= len(self.phases)
