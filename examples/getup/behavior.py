@@ -1,6 +1,6 @@
 from yohsin3d import BaseBehavior
 from yohsin3d.movement import Movement
-from yohsin3d.locomoters import FallRecovery
+from yohsin3d.locomotors import FallRecovery
 
 
 FALL_ON_BACK_SKILL = '''

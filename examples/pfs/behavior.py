@@ -1,6 +1,6 @@
 from yohsin3d import BaseBehavior
 from yohsin3d.core.world import PlayModes
-from yohsin3d.locomoters import PFSWalk, PFSTurn
+from yohsin3d.locomotors import PFSWalk, PFSTurn
 
 
 class PFSBehavior(BaseBehavior):
