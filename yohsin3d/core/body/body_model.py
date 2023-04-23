@@ -26,6 +26,14 @@ class BodyModel:
         ]
 
         self.initialise_joints()
+        # self.update_pid(0.15, 0.0, 0.01)
+        
+
+    def update_pid(self, P=None, I=None, D=None):
+        for joint in self.joints_list:
+            if P is not None: joint.k1 = P
+            if I is not None: joint.k2 = I
+            if D is not None: joint.k3 = D
 
     def set_initial_head(self):
 
@@ -95,9 +103,6 @@ class BodyModel:
             joint].current_angle
         self.joints_list[joint].current_angle = angle
 
-    def gettarget_angle(self, joint: Joint):
-        return self.joints_list[joint].target_angle
-
     def update_speed(self, gain):
         for joint in Joint:
             self.set_angle_gain(joint, gain)
@@ -111,10 +116,10 @@ class BodyModel:
         return self.joints_list[
             joint].current_angle - self.previous_joints_list[joint]
 
-    def set_target_angle(self, joint: Joint, angle, gain=None):
+    def set_target_angle(self, joint: Joint, angle, gain=None, from_radians=False):
+        if from_radians: angle = math.degrees(angle)
         self.joints_list[joint].set_target_angle(angle)
-        if gain is not None:
-            self.set_angle_gain(joint, gain)
+        if gain is not None: self.set_angle_gain(joint, gain)
 
     def increase_target_angle(self,
                               joint: Joint,
@@ -152,8 +157,25 @@ class BodyModel:
     def get_gyro_rates(self):
         return self.gyro_rates
 
-    def compute_torque(self, joint: Joint):
 
+    def compute_torque_pid(self, effector_id: Joint):
+        self.joints_list[effector_id].update_errors()
+
+        k1 = self.joints_list[effector_id].k1
+        k2 = self.joints_list[effector_id].k2
+        k3 = self.joints_list[effector_id].k3
+
+        current_error = self.joints_list[effector_id].current_error
+        cumulative_error = self.joints_list[effector_id].cumulative_error
+        previous_error = self.joints_list[effector_id].previous_error
+
+        torque = k1 * current_error
+        torque += k2 * cumulative_error
+        torque += k3 * (current_error - previous_error)
+
+        return self.joints_list[effector_id].scale * torque
+    
+    def compute_torque(self, joint: Joint):
         nao_joint = self.joints_list[joint]
         gain = nao_joint.scale
         angle = nao_joint.target_angle

@@ -1,4 +1,7 @@
 import math
+import numpy as np
+from ...core.common.constants import *
+
 
 
 class Utility:
@@ -36,13 +39,19 @@ class Utility:
         return angle
 
     @staticmethod
-    def get_angle(point_1, point_2):  # These can also be four parameters instead of two arrays
-        angle = math.atan2(point_1[1] - point_2[1], point_1[0] - point_2[0])
-        # Optional
+    def get_angle(point1, point2): 
+        angle = math.atan2(point1[1] - point2[1], point1[0] - point2[0])
         angle = math.degrees(angle)
-        # OR
-        # angle = math.radians(angle)
         return angle
+    
+    @staticmethod
+    def get_dribble_angle(point1, point2): 
+        point3 = GOAL_MID_POSITION
+        angle1 = math.atan2(point1[1] - point3[1], point1[0] - point3[0])
+        angle2 = math.atan2(point2[1] - point3[1], point2[0] - point3[0])
+        angle = math.degrees(angle1 - angle2)
+        return angle
+
 
     @staticmethod
     def get_point_on_goal_line(point1, point2, distance):
@@ -66,3 +75,10 @@ class Utility:
         xDiff = p2[0] - p1[0]
         yDiff = p2[1] - p1[1]
         return math.atan2(yDiff, xDiff)
+    
+
+    @staticmethod
+    def generate_linespace(point1, point2, num_points, offset_vector=(0, 0.25, 0)):
+        start_point = np.subtract(point1, offset_vector)
+        end_point = np.add(point2, offset_vector)
+        return np.linspace(start_point, end_point, num_points)

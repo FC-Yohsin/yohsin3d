@@ -1,6 +1,6 @@
 from yohsin3d import BaseBehavior
 from yohsin3d.core.world import PlayModes
-from yohsin3d.locomotors import PFSWalk, PFSTurn
+from yohsin3d.locomotors import PFSWalk, PFSTurn, FallRecovery
 
 
 class PFSBehavior(BaseBehavior):
@@ -11,17 +11,12 @@ class PFSBehavior(BaseBehavior):
     def initialize_behavior(self):
         self.pfs_walk = PFSWalk(self.body_model, self.world_model, self.localizer)
         self.pfs_turn = PFSTurn(self.body_model, self.world_model, self.localizer)
+        self.fall_recovery = FallRecovery(self.body_model, self.world_model)
 
     def act(self):
-        if self.world_model.playmode == PlayModes.PLAY_ON:
 
-            # Walk and stop at target
-            self.pfs_walk.walk_to(
-                target=(0, 0),
-            )
-
-            ## Dribble ball to goal
-            # self.pfs_walk.dribble_to_goal()
-
-            ## Turn to target orientation
-            # self.pfs_turn.execute_turn_orientation(theta=-180)
+        if not self.fall_recovery.detect_fall_and_getup():
+            if self.world_model.playmode == PlayModes.PLAY_ON:            
+                self.pfs_walk.dribble_walk()
+        else:
+            self.pfs_walk.reset()

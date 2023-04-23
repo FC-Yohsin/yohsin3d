@@ -1,8 +1,8 @@
-from behavior import PFSBehavior
+from examples.pfs.behavior import PFSBehavior
 from yohsin3d import Agent, AgentLocation
 from yohsin3d.localizers import GroundTruthLocalizer
 
-coords = AgentLocation((-14.4, 0.0), 0)
+coords = AgentLocation((-3.4, 0.0), 0)
 behavior = PFSBehavior(start_coordinates=coords, localizer=GroundTruthLocalizer())
 
 agent = Agent(agent_num=2,
@@ -13,3 +13,5 @@ agent = Agent(agent_num=2,
               )
 behavior.initialize_behavior()
 agent.start()
+
+

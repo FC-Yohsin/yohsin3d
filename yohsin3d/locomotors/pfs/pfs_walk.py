@@ -4,36 +4,45 @@ from ...core.body import BodyModel
 from ...core.world import WorldModel
 from ...core.localizer import BaseLocalizer
 from ...movement import Movement
+from .pfs_turn import PFSTurn
 from .utility import Utility
+from ...drawing import RvDraw
 import math
-import numpy as np
+from enum import Enum
 
 
 WALK_INIT_SKILL = '''
-start phase 0: 1.2
-target lae1 -2.0 7.0
-target rae1 -2.0 7.0
-target lae2 -0.35 7.0
-target rae2 -0.35 7.0
-target lae3 -1.4 7.0
-target rae3 1.4 7.0
-target lae4 -0.52 7.0
-target rae4 0.52 7.0
-target lle1 0.15 7.0
-target rle1 0.15 7.0
-target lle2 -0.212 7.0
-target rle2 0.212 7.0
-target lle3 0.382 7.0
-target rle3 0.382 7.0
-target lle4 -0.5 7.0
-target rle4 -0.5 7.0
-target lle5 0.465 7.0
-target rle5 0.465 7.0
-target lle6 0.212 7.0
-target rle6 -0.212 7.0
+start phase 0: 0.7
+target lle1 0 7.0
+target rle1 0 7.0
+target lle2 5 7.0
+target rle2 -5 5.0
+target lle3 25 6.0
+target rle3 25 6.0
+target lle4 -65 5.0
+target rle4 -65 5.0
+target lle5 36 5.0
+target rle5 36 6.0
+target lle6 -1 6.0
+target rle6 1 6.0
+target lae1 -75 5.0
+target rae1 -75 6.0
+target lae2 45 6.0
+target rae2 -45 5.0
+target lae4 -68 6.0
+target rae4 68 5.0
+target lle1 -11 5.0
+target rle1 -11 5.0
 end phase
 '''
 
+
+# Sequential States
+class States(Enum):
+    TESTING = -1
+    DRIBBLE_BALL_TO_GOAL = 0
+    WALK_BEHIND_BALL = 1
+    TURNING_TO_BALL = 2
 
 class PFSWalk:
     def __init__(self,
@@ -49,7 +58,13 @@ class PFSWalk:
         self.walk_init_skill: Movement = Movement.from_string(WALK_INIT_SKILL)
         self.should_get_ready = True
         self.stop_walk = False
-        self.slow_down = False
+
+        self.drawer = RvDraw()
+        self.pfs_turn = PFSTurn(self.body_model, self.world_model, self.localizer)
+
+        self.last_state =  None
+        self.current_state = States.TESTING
+        
 
     def get_ready_for_walk(self):
         if self.should_get_ready:
@@ -57,7 +72,11 @@ class PFSWalk:
             if self.walk_init_skill.is_finished():
                 self.should_get_ready = False
 
+                if self.current_state == States.WALK_BEHIND_BALL:
+                    self.current_state = States.TURNING_TO_BALL
+
     def get_walking_gain(self, counter):
+
         if 0 < counter < 20:
             return 5.0
         elif 20 <= counter < 40:
@@ -72,92 +91,93 @@ class PFSWalk:
             return 10.0
 
     def get_gain(self, distance_to_target, stop=True):
+
         if 3.5 <= distance_to_target < 4.0:
             return 8.0
         elif 3.0 <= distance_to_target < 3.5:
-            self.slow_down = True
             return 7.0
         elif 2.5 <= distance_to_target < 3.0:
             return 6.5
         elif 2.0 <= distance_to_target < 2.5:
-            return 6.35
+            return 6.5
         elif 1.5 <= distance_to_target < 2.0:
             return 6.25
-        elif 1.0 <= distance_to_target < 1.5:
+        elif 1.3 <= distance_to_target < 1.5:
             return 6.0
-        elif 0.7 <= distance_to_target < 1.0:
+        elif 1.0 <= distance_to_target < 1.3:
             return 5.5
+        elif 0.7 <= distance_to_target < 1.0:
+            return 5.25
         elif 0.5 <= distance_to_target < 0.7:
             return 5.0
         elif 0.3 <= distance_to_target < 0.5:
             return 4.5
         elif 0.2 <= distance_to_target < 0.3:
             return 4.0
-        elif 0 < distance_to_target < 0.2:
+        elif distance_to_target < 0.2:
             if stop:
-                self.stop_walk = True
-                self.should_get_ready = True
-                self.walk_init_skill.reset()
-            return None
+                if self.current_state == States.WALK_BEHIND_BALL:
+                    self.walk_counter = 0
+                    self.stop_walk = True
+                    self.should_get_ready = True
+                    self.walk_init_skill.reset()
+            return 3.0
         else:
             return self.get_walking_gain(self.walk_counter)
+        
+    def get_arm_joints(self, joints):
+        if self.walk_counter < 100:
+            joints[Joint.LA1] = math.radians(-60)
+            joints[Joint.RA1] = math.radians(-60)
+            joints[Joint.LA2] = math.radians(0)
+            joints[Joint.RA2] = math.radians(0)
+
+        else:
+            joints[Joint.LA1] = -2.0
+            joints[Joint.RA1] = -2.0
+            joints[Joint.LA2] = 0.35
+            joints[Joint.RA2] = -0.35
+
+        joints[Joint.LA3] = -1.4
+        joints[Joint.RA3] = 1.4
+        joints[Joint.LA4] = -0.52
+        joints[Joint.RA4] = 0.52
+        
+        return joints
+
 
     def update_posture(self, gain):
-        if not self.slow_down:
-            if self.walk_counter < 100:
-                self.body_model.set_target_angle(Joint.LA1, -60, gain)
-                self.body_model.set_target_angle(Joint.RA1, -60, gain)
-                self.body_model.set_target_angle(Joint.LA2, 0, gain)
-                self.body_model.set_target_angle(Joint.RA2, 0, gain)
 
-            else:
-                self.body_model.set_target_angle(
-                    Joint.LA1, math.degrees(-2.0), gain)
-                self.body_model.set_target_angle(
-                    Joint.RA1, math.degrees(-2.0), gain)
-                self.body_model.set_target_angle(
-                    Joint.LA2, math.degrees(0.35), gain)
-                self.body_model.set_target_angle(
-                    Joint.RA2, math.degrees(-0.35), gain)
+        joints = {
+            Joint.LA1: None,
+            Joint.LA2: None,
+            Joint.LA3: None,
+            Joint.LA4: None,
 
-            self.body_model.set_target_angle(
-                Joint.LA3, math.degrees(-1.4), gain)
-            self.body_model.set_target_angle(
-                Joint.RA3, math.degrees(1.4), gain)
-            self.body_model.set_target_angle(
-                Joint.LA4, math.degrees(-0.52), gain)
-            self.body_model.set_target_angle(
-                Joint.RA4, math.degrees(0.52), gain)
-        else:
-            self.body_model.set_target_angle(
-                Joint.LA1, math.degrees(-2.0), gain)
-            self.body_model.set_target_angle(
-                Joint.RA1, math.degrees(-2.0), gain)
-            self.body_model.set_target_angle(
-                Joint.LA2, math.degrees(0.35), gain)
-            self.body_model.set_target_angle(
-                Joint.RA2, math.degrees(-0.35), gain)
-            self.body_model.set_target_angle(
-                Joint.LA3, math.degrees(-1.4), gain)
-            self.body_model.set_target_angle(
-                Joint.RA3, math.degrees(1.4), gain)
-            self.body_model.set_target_angle(
-                Joint.LA4, math.degrees(-0.52), gain)
-            self.body_model.set_target_angle(
-                Joint.RA4, math.degrees(0.52), gain)
+            Joint.RA1: None,
+            Joint.RA2: None,
+            Joint.RA3: None,
+            Joint.RA4: None,
+        }
+
+        joints = self.get_arm_joints(joints)
+
+        for joint in joints:
+            angle = joints[joint]
+            if angle is not None:
+                self.body_model.set_target_angle(joint, angle, gain, True)
 
     def adjust_leg_joints(self, joints, target, t, T, dribble=False):
 
         my_position = self.localizer.my_location.position
 
         if not dribble:
-            desired_orientation = math.radians(
-                Utility.get_angle(target, my_position))
+            angle_to_ball = Utility.get_angle(target, my_position)
+            desired_orientation = math.radians(angle_to_ball)
         else:
             desired_orientation = math.radians(self.dribbling_angle)
 
-        current_orientation = math.radians(
-            self.localizer.my_location.orientation)
+        current_orientation = math.radians(self.localizer.my_location.orientation)
         orientation_to_move = desired_orientation - current_orientation
 
         if (orientation_to_move < -math.pi):
@@ -165,7 +185,7 @@ class PFSWalk:
         if desired_orientation < 0:
             desired_orientation = math.pi + (math.pi + desired_orientation)
 
-        sharpness = 0.02
+        sharpness = 0.020
 
         x = 0.03 + 0.03 * math.sin(2 * math.pi * t / T - math.pi / 2 - 0.3)
         y = 0.03 + 0.03 * math.sin(2 * math.pi * t / T + math.pi / 2 - 0.3)
@@ -239,83 +259,77 @@ class PFSWalk:
         }
 
     def adjust_desired_orientation(self, target):
-        goal_mid_pos = (15.0, 0.0)
         my_position = self.localizer.my_location.position[:2]
+        goal_point = GOAL_MID_POSITION
+        point_behind_ball = Utility.get_point_on_goal_line(target, goal_point, -2.80)
+        distance = math.dist(point_behind_ball, my_position)
+        deviation = Utility.get_perpendicular_distance_to_line(target, goal_point, my_position)
 
-        goal_pole_1 = WORLD_OBJECTS_GLOBAL_POSITIONS['G1R']
-        goal_pole_2 = WORLD_OBJECTS_GLOBAL_POSITIONS['G2R']
+        if distance > 0.1 and deviation > 0.5: target = point_behind_ball
+        theta = Utility.get_angle(target, my_position)
+        self.dribbling_angle = theta
+        return target
 
-        points = np.linspace(
-            np.subtract(
-                goal_pole_1, (0, 0.25, 0)), np.add(
-                goal_pole_2, (0, 0.25, 0)), 5)
 
-        if math.dist(my_position, goal_mid_pos) < 5:
-            points = [goal_mid_pos]
+    def turn_to_ball(self):
+        ball_position = self.localizer.ball_position[:2]
+        my_position = self.localizer.my_location.position[:2]
+        theta = Utility.get_angle(ball_position, my_position)
+        turn_finished = self.pfs_turn.execute_turn_orientation(theta)
 
-        closest_theta = None
-        closest_line_start_point = None
-        lowest_turn_angle = 9999
-        for point in points:
-            goal_point = point[:2]
-            line_start_point = Utility.get_point_on_goal_line(
-                target, goal_point, -2.75)
-            distance_to_point1 = math.dist(line_start_point, my_position)
-            deviation_from_line = Utility.get_perpendicular_distance_to_line(
-                target, goal_point, my_position)
+        if turn_finished == True:
+            self.walk_counter = 0
+            self.current_state = States.DRIBBLE_BALL_TO_GOAL
 
-            if target[1] > -1 and target[1] < 1 and target[0] > 14.8:
-                theta = Utility.get_angle(target, my_position)
-            elif distance_to_point1 > 0.1 and deviation_from_line > 0.5:
-                theta = Utility.get_angle(line_start_point, my_position)
-            else:
-                theta = Utility.get_angle(target, my_position)
 
-            turn_angle = abs(self.localizer.my_location.orientation - theta)
+    def dribble_walk(self):
 
-            if turn_angle < lowest_turn_angle:
-                lowest_turn_angle = turn_angle
-                closest_theta = theta
-                closest_line_start_point = line_start_point
+        my_position = self.localizer.my_location.position[:2]
+        ball_position = self.localizer.ball_position[:2]
 
-        self.dribbling_angle = closest_theta
-        return closest_line_start_point
+        if my_position[0] > ball_position[0]:
+            self.current_state = States.WALK_BEHIND_BALL
+
+        if self.current_state == States.TESTING:
+            self.walk_to((3,3))
+        elif self.current_state == States.DRIBBLE_BALL_TO_GOAL:
+            self.dribble_to_goal()
+        elif self.current_state == States.WALK_BEHIND_BALL:
+            point_behind_ball = Utility.get_point_on_goal_line(ball_position, GOAL_MID_POSITION, -1.75)
+            self.walk_to(point_behind_ball)
+        elif self.current_state == States.TURNING_TO_BALL:
+            self.turn_to_ball()
+            
+
+    def walk_to(self, target, dribble_ball=False):
+        my_position = self.localizer.my_location.position[:2]
+        distance = math.dist(my_position, target)
+        self.get_ready_for_walk()
+
+        if dribble_ball and self.current_state == States.DRIBBLE_BALL_TO_GOAL:
+            self.stop_walk = False
+
+        if not self.should_get_ready and not self.stop_walk:
+            self.walk_counter += 1
+            T = 0.32
+            t = self.walk_counter / 50
+            gain = self.get_gain(distance, stop=(not dribble_ball))
+            self.update_posture(gain)
+            joints = self.get_leg_joints(T, t)
+            joints = self.adjust_leg_joints(joints, target, t, T, dribble=dribble_ball)
+
+            for joint in joints:
+                angle = joints[joint]
+                angle = math.degrees(angle)
+                self.body_model.set_target_angle(joint, angle, gain)
+
 
     def dribble_to_goal(self):
         target = self.localizer.ball_position[:2]
         target = self.adjust_desired_orientation(target)
+        self.walk_to(target, dribble_ball=True)
+                
 
-        my_position = self.localizer.my_location.position[:2]
-        distance = math.dist(my_position, target)
-        self.get_ready_for_walk()
-
-        if not self.should_get_ready and not self.stop_walk:
-            self.walk_counter += 1
-            T = 0.32
-            t = self.walk_counter / 50
-            gain = self.get_gain(distance, stop=False)
-            self.update_posture(gain)
-            joints = self.get_leg_joints(T, t)
-            joints = self.adjust_leg_joints(joints, target, t, T, dribble=True)
-
-            for joint in joints:
-                self.body_model.set_target_angle(
-                    joint, math.degrees(joints[joint]), gain)
-
-    def walk_to(self, target):
-        my_position = self.localizer.my_location.position[:2]
-        distance = math.dist(my_position, target)
-        self.get_ready_for_walk()
-
-        if not self.should_get_ready and not self.stop_walk:
-            self.walk_counter += 1
-            T = 0.32
-            t = self.walk_counter / 50
-            gain = self.get_gain(distance)
-            self.update_posture(gain)
-            joints = self.get_leg_joints(T, t)
-            joints = self.adjust_leg_joints(joints, target, t, T)
-
-            for joint in joints:
-                self.body_model.set_target_angle(
-                    joint, math.degrees(joints[joint]), gain)
+    def reset(self):
+        self.walk_counter = 0
+        self.pfs_turn.reset()

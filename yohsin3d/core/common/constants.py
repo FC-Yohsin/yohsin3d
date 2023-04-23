@@ -26,3 +26,5 @@ WORLD_OBJECTS_GLOBAL_POSITIONS = {
     "G1R": (15.0, 1.05, 0.8),
     "G2R": (15.0, -1.05, 0.8),
 }
+
+GOAL_MID_POSITION = (15.0, 0.0)

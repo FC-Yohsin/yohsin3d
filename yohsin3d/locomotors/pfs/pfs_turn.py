@@ -8,7 +8,7 @@ import math
 
 
 STAND_SKILL = '''
-start phase 0: 2.0
+start phase 0: 1.0
 target lle1 0 5.0
 target rle1 0 5.0
 target lle2 5 5.0
@@ -68,12 +68,15 @@ class PFSTurn:
             self.turn_counter += 1
             self.turn_to(desired_orientation=theta,
                          turn_direction=direction)
+        
         else:
             if self.turn_reset_skills:
                 self.stand_skill.reset()
                 self.turn_reset_skills = False
 
             self.stand_skill.perform(self.body_model, self.world_model)
+            if self.stand_skill.is_finished():
+                return True
 
     def get_turning_gain(self):
 
@@ -81,32 +84,35 @@ class PFSTurn:
             return 1.0
 
         elif (20 <= self.turn_counter < 40):
-            return 3.0
+            return 1.5
 
         elif (40 <= self.turn_counter < 60):
-            return 5.0
+            return 2.5
 
         elif (60 <= self.turn_counter < 80):
-            return 5.0
+            return 4.5
 
         elif (80 <= self.turn_counter < 100):
             return 6.0
         else:
-            return 7.0
+            return 6.0
 
     def get_gain(self, desired_orientation):
+
+        if self.turn_counter < 60:
+            return self.get_turning_gain()
 
         current_orientation = self.localizer.my_location.orientation
         difference = abs(desired_orientation - current_orientation)
 
         if 15 <= difference < 20:
-            return 5.0
+            return 6.5
         elif 10 <= difference < 15:
-            return 4.5
+            return 6.0
         elif 8 <= difference < 10:
-            return 3.5
+            return 4.5
         elif 7 <= difference < 8:
-            return 2.5
+            return 3.5
         elif 5 <= difference < 6:
             return 1.25
         elif difference < 5:

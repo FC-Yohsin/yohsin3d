@@ -1,3 +1,5 @@
+from typing import Tuple
+
 class NaoJoint:
     def __init__(
         self,
@@ -12,6 +14,8 @@ class NaoJoint:
         self.target_angle = 0
 
         self.error_tolerance = error_tolerance
+        self.k1, self.k2, self.k3 = (0,0,0)
+        self.reset_errors()
 
         self.scale = 1.0
 
@@ -28,3 +32,14 @@ class NaoJoint:
 
     def update(self, angle):
         self.current_angle = angle
+
+
+    def reset_errors(self):
+        self.current_error = 0
+        self.previous_error = 0
+        self.cumulative_error = 0
+
+    def update_errors(self):
+        self.previous_error = self.current_error
+        self.current_error = self.target_angle - self.current_angle
+        self.cumulative_error += self.current_error
