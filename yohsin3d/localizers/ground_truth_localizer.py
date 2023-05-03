@@ -6,8 +6,8 @@ GROUNDTRUTH_NOT_ENABLED_ERROR = "Ground truth not enabled"
 
 
 class GroundTruthLocalizer(BaseLocalizer):
-    def _init_(self) -> None:
-        super()._init_()
+    def __init__(self) -> None:
+        super().__init__()
 
     def check_validity(self) -> None:
         assert self.world_model.groundtruth.is_enabled(), GROUNDTRUTH_NOT_ENABLED_ERROR

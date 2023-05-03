@@ -2,6 +2,7 @@
 from enum import IntEnum, Enum
 
 
+
 class Sides(IntEnum):
     LEFT = 0
     RIGHT = 1
@@ -50,6 +51,25 @@ class VisibleObjects(Enum):
     BALL = 'B'
 
 
+    @property
+    def global_position(self):
+        return _WORLD_OBJECTS_GLOBAL_POSITIONS[self.name]
+
+        
+
+
 class WorldDimensions(Enum):
     HEIGHT = 20.0
     WIDTH = 30.0
+
+
+_WORLD_OBJECTS_GLOBAL_POSITIONS = {
+    "F1R": (15.0, 10.0, 0.0),
+    "F1L": (-15.0, 10.0, 0.0),
+    "F2R": (15.0, -10.0, 0.0),
+    "F2L": (-15.0, -10.0, 0.0),
+    "G1L": (-15.0, 1.05, 0.8),
+    "G2L": (-15.0, -1.05, 0.8),
+    "G1R": (15.0, 1.05, 0.8),
+    "G2R": (15.0, -1.05, 0.8),
+}
