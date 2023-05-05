@@ -11,4 +11,7 @@ agent = Agent(agent_num=2,
               behavior=behavior,
               )
 
+
+behavior.initialize_behavior()
+
 agent.start()

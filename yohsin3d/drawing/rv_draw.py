@@ -46,11 +46,11 @@ class RvDraw():
 
     def __float_to_buffer(self, buffer: bytearray, value: float) -> None:
         buffer.extend((str(value).ljust(6, '0')).encode('ASCII'))
-
-    def __color_to_buffer(self, buffer: bytearray, color: Color) -> None:
-        buffer.append(color.value[0])
-        buffer.append(color.value[1])
-        buffer.append(color.value[2])
+    
+    def __color_to_buffer(self, buffer: bytearray, color: tuple) -> None:
+        buffer.append(color[0])
+        buffer.append(color[1])
+        buffer.append(color[2])
 
     def __str_to_buffer(self, buffer: bytearray, text: str) -> None:
         buffer.extend(list(map(ord, text)))
@@ -88,7 +88,23 @@ class RvDraw():
         self.__swap_buffer(buffer, name)
         self.__send_message(bytes(buffer), len(buffer))
 
-    def draw_line(self, pointA: Tuple[float], pointB: Tuple[float, float, float], setName: str, color: Color = Color.BLUE, thickness: float = 2.0) -> None:
+
+    def __check_location_tuple(self, cordinate: Tuple[float]) -> tuple:
+        assert cordinate is not None, "Cordinate is not defined"
+        assert len(cordinate) == 3, "Cordinate must be a tuple of length 3"
+        rounded = []
+        for i in range(len(cordinate)):
+            assert isinstance(
+                cordinate[i], (int, float)), "Cordinate must be a number"
+            rounded.append(round(cordinate[i], 2))
+        if len(cordinate) == 2:
+            rounded.append(0)
+        return tuple(rounded)
+    
+    def draw_line(self, pointA: Tuple[float], pointB: Tuple[float], setName: str, color: Color = Color.RED, thickness: float = 2.0) -> None:
+        pointA = self.__check_location_tuple(pointA)
+        pointB = self.__check_location_tuple(pointB)
+
         buffer = bytearray(0)
         self.__header_to_buffer(buffer, HeaderType.DRAW_LINE)
         self.__float_to_buffer(buffer, pointA[0])
@@ -98,9 +114,10 @@ class RvDraw():
         self.__float_to_buffer(buffer, pointB[1])
         self.__float_to_buffer(buffer, pointB[2])
         self.__float_to_buffer(buffer, thickness)
-        self.__color_to_buffer(buffer, color)
+        self.__color_to_buffer(buffer, color.value)
         self.__str_to_buffer(buffer, setName)
 
+        # swap buffers
         self.__swap_buffer(buffer, setName)
 
         self.__send_message(bytes(buffer), len(buffer))
@@ -122,4 +139,4 @@ class RvDraw():
         self.__header_to_buffer(buffer, HeaderType.CLEAR_ANNOTATION)
         buffer.append(agentNum)
 
-        self.__sendMessage(bytes(buffer), len(buffer))
+        self.__send_message(bytes(buffer), len(buffer))

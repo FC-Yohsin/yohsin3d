@@ -1,6 +1,7 @@
 from yohsin3d import BaseBehavior
+from yohsin3d.locomotors import PFSWalk
 from drawing import rvDraw, Color
-from yohsin3d.localizers import GroundTruthLocalizer, GeometricLocalizer
+from yohsin3d.localizers import GeometricLocalizer
 
 
 class DrawingBehavior(BaseBehavior):
@@ -8,11 +9,13 @@ class DrawingBehavior(BaseBehavior):
         super().__init__(beam_location=start_coordinates,
                          communicator=None, localizer=GeometricLocalizer())
 
+
+    def initialize_behavior(self):
+        self.pfs_walk = PFSWalk(self.body_model, self.world_model, self.localizer)
+        
+
     def act(self):
         if self.localizer.my_location.position:
-            print(self.localizer.my_location)
-            rvDraw.draw_circle(self.localizer.my_location.position,
-                               radius=0.015, color=Color.BLUE, name="my_location")
-        if self.localizer.ball_position:
-            rvDraw.draw_circle(self.localizer.ball_position,
-                               radius=0.01, color=Color.BLUE, name="ball_position")
+            rvDraw.draw_circle(self.localizer.my_location.position, radius=0.15, color=Color.BLUE.value, name="my_location")
+
+        self.pfs_walk.walk_to((0,0))

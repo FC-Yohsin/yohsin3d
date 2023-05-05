@@ -88,9 +88,14 @@ class GeometricLocalizer(BaseLocalizer):
         return theta
     
     def _localize(self, visible_objects: tuple[VisibleObjects, VisibleObjects]):
-        self.my_location.update_position(self._two_flag_position_localize(visible_objects))
+        pos = self._two_flag_position_localize(visible_objects)
+        rounded_pos = (round(pos[0], 2), round(pos[1], 2), round(pos[2], 2))
+        self.my_location.update_position(rounded_pos)
+
         if self.my_location.position is not None:
-            self.my_location.update_orientation(self._one_flag_orientation_localize(visible_objects[0]))
+            orientation = self._one_flag_orientation_localize(visible_objects[0])
+            rounded_orientation = round(orientation, 2)
+            self.my_location.update_orientation(rounded_orientation)
 
     
     def update(self) -> None:
