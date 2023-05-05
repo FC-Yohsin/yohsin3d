@@ -35,6 +35,7 @@ class Agent:
         self.monitor_socket = Server()
         self.behavior: BaseBehavior = behavior
         self.behavior.initialize(team_name)
+        self.behavior.body_model.agent_type = agent_type
 
     def done(self):
         self.global_socket.close()

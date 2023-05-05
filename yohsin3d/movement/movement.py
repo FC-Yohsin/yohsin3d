@@ -50,11 +50,8 @@ class Movement:
         self.current_index = 0
 
     @staticmethod
-    def from_file(path):
-
-        file = open(path, 'r')
+    def from_string(content: str):
         movement = Movement()
-        content = file.read()
         phases: list = list(re.findall(
             r"start phase((.|\n)*?)end phase", content))
 
@@ -81,6 +78,13 @@ class Movement:
 
             movement.add(movement_phase)
 
+        return movement
+
+    @staticmethod
+    def from_file(path):
+        file = open(path, 'r')
+        content = file.read()
+        movement = Movement.from_string(content)
         file.close()
         return movement
 

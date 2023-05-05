@@ -93,7 +93,7 @@ class WorldModel:
         self.my_number = num
 
     def is_my_number_set(self):
-        return self.my_number != None
+        return self.my_number is not None
 
     def set_position_groundtruth(self, new_pos):
         self.groundtruth.my_location.update_position(new_pos)
@@ -111,11 +111,17 @@ class WorldModel:
         self.side = side
 
     def is_side_set(self):
-        return self.side != None
+        return self.side is not None
 
 
 class PlayerInfo:
-    def __init__(self, head=None, rlowerarm=None, llowerarm=None, rfoot=None, lfoot=None):
+    def __init__(
+            self,
+            head=None,
+            rlowerarm=None,
+            llowerarm=None,
+            rfoot=None,
+            lfoot=None):
         self.head = head
         self.rlowerarm = rlowerarm
         self.llowerarm = llowerarm

@@ -77,7 +77,8 @@ class Parser:
     def __parse_accelerometer(self, string):
         rateX, rateY, rateZ = self.__get_xyz(string, "a")
 
-        #  Sometimes spurious (very high or NaN) readings come through. Clip them.
+        # Sometimes spurious (very high or NaN) readings come through. Clip
+        # them.
         spuriousThreshold = 20.0
         if ((abs(rateX) > spuriousThreshold)):
             rateX = 0
@@ -104,7 +105,9 @@ class Parser:
             (correctedRateX, correctedRateY, correctedRateZ))
 
     def __segment(self, string):
-        return re.findall(r'\(([^()]*(?:\(([^()]*(?:\((?:[^()]*(?:\([^()]*\)[^()]*)*)\)[^()]*)*)\)[^()]*)*)\)', string)
+        return re.findall(
+            r'\(([^()]*(?:\(([^()]*(?:\((?:[^()]*(?:\([^()]*\)[^()]*)*)\)[^()]*)*)\)[^()]*)*)\)',
+            string)
 
     def __parse_hinge_joint(self, string):
         effector_name = perceptor_to_joint[self.__parser_helper("n", string)]
@@ -134,8 +137,8 @@ class Parser:
 
     def __parse_line(self, string):
         '''
-        Parse Line is not complete yet. There are multiple lines data coming from the server. We need to figure out how to 
-        process that. 
+        Parse Line is not complete yet. There are multiple lines data coming from the server. We need to figure out how to
+        process that.
 
         TODO: Need to undderstand the concept of the lines
         '''
@@ -157,7 +160,8 @@ class Parser:
         valid = False
 
         tokens = self.tokenise(string)
-        # based on the assumption that the max characters in a team name will be 100
+        # based on the assumption that the max characters in a team name will
+        # be 100
         valid = (len(tokens) == 30)
 
         if valid:
@@ -187,20 +191,22 @@ class Parser:
 
     def __reset_simple_non_visible_objects(self, string):
         for object in VisibleObjects:
-            if not re.search(f"[(]{object.value}\s", string):
+            if not re.search(f"[(]{object.value}\\s", string):
                 self.world_model.simple_vision_objects[object] = None
 
     def __is_player_visible(self, string, num, team):
-        regex = f"\(P\s+\(team\s+{team}\)\s+\(id\s+{num}\)"
+        regex = f"\\(P\\s+\\(team\\s+{team}\\)\\s+\\(id\\s+{num}\\)"
         return re.search(regex, string) is not None
 
     def __reset_player_information(self, string):
         for object in self.world_model.teammate_info.keys():
-            if not self.__is_player_visible(string, object, self.world_model.my_team_name):
+            if not self.__is_player_visible(
+                    string, object, self.world_model.my_team_name):
                 self.world_model.teammate_info[object].is_visible = False
 
         for object in self.world_model.opponent_info.keys():
-            if not self.__is_player_visible(string, object, self.world_model.opponent_team_name):
+            if not self.__is_player_visible(
+                    string, object, self.world_model.opponent_team_name):
                 self.world_model.opponent_info[object].is_visible = False
 
     def __parse_position_groundtruth(self, string):

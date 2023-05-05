@@ -3,7 +3,7 @@ from ..world import WorldModel
 
 
 class BaseLocalizer:
-    def _init_(self) -> None:
+    def __init__(self) -> None:
         self.world_model: WorldModel = None
         self.my_location = AgentLocation()
         self.ball_position = None
