@@ -14,4 +14,3 @@ min_agent_y = -HALF_FIELD_Y - 5.0
 max_agent_y = HALF_FIELD_Y + 5.0
 
 NUM_AGENTS = 11
-

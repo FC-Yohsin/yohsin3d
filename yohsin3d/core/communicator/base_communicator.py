@@ -25,7 +25,8 @@ class BaseCommunicator:
         self.world_model: WorldModel = None
         self.localizer: BaseLocalizer = None
 
-    def initialize(self, world_model: WorldModel, localizer: BaseLocalizer) -> None:
+    def initialize(self, world_model: WorldModel,
+                   localizer: BaseLocalizer) -> None:
         self.world_model = world_model
         self.localizer = localizer
 

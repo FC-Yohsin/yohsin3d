@@ -46,7 +46,7 @@ class RvDraw():
 
     def __float_to_buffer(self, buffer: bytearray, value: float) -> None:
         buffer.extend((str(value).ljust(6, '0')).encode('ASCII'))
-    
+
     def __color_to_buffer(self, buffer: bytearray, color: tuple) -> None:
         buffer.append(color[0])
         buffer.append(color[1])
@@ -56,11 +56,20 @@ class RvDraw():
         buffer.extend(list(map(ord, text)))
         buffer.append(0)
 
-    def __header_to_buffer(self, buffer: bytearray, header: HeaderType) -> None:
+    def __header_to_buffer(
+            self,
+            buffer: bytearray,
+            header: HeaderType) -> None:
         buffer.append(header.value[0])
         buffer.append(header.value[1])
 
-    def add_annotation(self, text: str, position: Tuple[float, float, float], name: str, color: Color = Color.RED) -> None:
+    def add_annotation(self,
+                       text: str,
+                       position: Tuple[float,
+                                       float,
+                                       float],
+                       name: str,
+                       color: Color = Color.RED) -> None:
         buffer = bytearray(0)
 
         self.__header_to_buffer(buffer, HeaderType.ANNOTATION)
@@ -75,7 +84,14 @@ class RvDraw():
 
         self.__send_message(bytes(buffer), len(buffer))
 
-    def draw_circle(self, center: Tuple[float, float, float], radius: float, name: str, color: Color = Color.RED, thickness: float = 2.0) -> None:
+    def draw_circle(self,
+                    center: Tuple[float,
+                                  float,
+                                  float],
+                    radius: float,
+                    name: str,
+                    color: Color = Color.RED,
+                    thickness: float = 2.0) -> None:
         buffer = bytearray(0)
         self.__header_to_buffer(buffer, HeaderType.DRAW_CIRCLE)
         self.__float_to_buffer(buffer, center[0])
@@ -88,7 +104,6 @@ class RvDraw():
         self.__swap_buffer(buffer, name)
         self.__send_message(bytes(buffer), len(buffer))
 
-
     def __check_location_tuple(self, cordinate: Tuple[float]) -> tuple:
         assert cordinate is not None, "Cordinate is not defined"
         assert len(cordinate) == 3, "Cordinate must be a tuple of length 3"
@@ -100,8 +115,14 @@ class RvDraw():
         if len(cordinate) == 2:
             rounded.append(0)
         return tuple(rounded)
-    
-    def draw_line(self, pointA: Tuple[float], pointB: Tuple[float], setName: str, color: Color = Color.RED, thickness: float = 2.0) -> None:
+
+    def draw_line(
+            self,
+            pointA: Tuple[float],
+            pointB: Tuple[float],
+            setName: str,
+            color: Color = Color.RED,
+            thickness: float = 2.0) -> None:
         pointA = self.__check_location_tuple(pointA)
         pointB = self.__check_location_tuple(pointB)
 
@@ -122,7 +143,10 @@ class RvDraw():
 
         self.__send_message(bytes(buffer), len(buffer))
 
-    def add_agent_annotation(self, text: str, color: Color = Color.RED) -> None:
+    def add_agent_annotation(
+            self,
+            text: str,
+            color: Color = Color.RED) -> None:
         buffer = bytearray(0)
 
         self.__header_to_buffer(buffer, HeaderType.AGENT_ANNOTATION)

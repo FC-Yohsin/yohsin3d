@@ -10,7 +10,7 @@ class BitCodec:
             return 0
 
         n = 0
-        for i in range(start, end+1):
+        for i in range(start, end + 1):
             n *= 2
             n += bits[i]
 
@@ -22,7 +22,7 @@ class BitCodec:
             return []
 
         bits = [0] * num_bits
-        for i in range(num_bits-1, -1, -1):
+        for i in range(num_bits - 1, -1, -1):
             bits[i] = n % 2
             n //= 2
 
@@ -78,4 +78,5 @@ class BitCodec:
     @staticmethod
     def decode_bit_array(bits, min_value, max_value, num_bits=10):
         value = BitCodec.bits_to_int(bits, 0, num_bits - 1)
-        return min_value + (value * (max_value - min_value)) / ((1 << num_bits) - 1)
+        return min_value + (value * (max_value - min_value)
+                            ) / ((1 << num_bits) - 1)

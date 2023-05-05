@@ -8,6 +8,6 @@ class AgentLocation:
 
     def update_orientation(self, orientation):
         self.orientation = orientation
-    
+
     def __repr__(self) -> str:
         return f"AgentLocation(position={self.position}, orientation={self.orientation})"

@@ -8,7 +8,11 @@ from .common import AgentLocation, Joint
 
 class BaseBehavior:
 
-    def __init__(self, beam_location: AgentLocation, localizer: BaseLocalizer = None, communicator: BaseCommunicator = None) -> None:
+    def __init__(
+            self,
+            beam_location: AgentLocation,
+            localizer: BaseLocalizer = None,
+            communicator: BaseCommunicator = None) -> None:
         self.beam_location = beam_location
         self.monitor_msg = ""
         self.initialized = False

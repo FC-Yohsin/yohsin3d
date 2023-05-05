@@ -49,7 +49,6 @@ class Movement:
         self.phases: List[MovementPhase] = []
         self.current_index = 0
 
-
     @staticmethod
     def from_string(content: str):
         movement = Movement()
@@ -79,7 +78,6 @@ class Movement:
 
             movement.add(movement_phase)
 
-        
         return movement
 
     @staticmethod
@@ -89,7 +87,6 @@ class Movement:
         movement = Movement.from_string(content)
         file.close()
         return movement
-
 
     def is_finished(self):
         finished = self.current_index >= len(self.phases)

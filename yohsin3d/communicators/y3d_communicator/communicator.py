@@ -4,7 +4,14 @@ from .bit_codec import BitCodec
 
 
 class CommunicationData:
-    def __init__(self, heard_from=None, time=None, ball_x=None, ball_y=None, my_x=None, my_y=None):
+    def __init__(
+            self,
+            heard_from=None,
+            time=None,
+            ball_x=None,
+            ball_y=None,
+            my_x=None,
+            my_y=None):
         self.heard_from = heard_from
         self.time = time
         self.ball_x = ball_x
@@ -64,19 +71,19 @@ class Y3dCommunicator(BaseCommunicator):
         time = cycles * 0.02
         ctr += 16
 
-        bx_bits = bits[ctr:ctr+10]
+        bx_bits = bits[ctr:ctr + 10]
         ballX = BitCodec.decode_bit_array(bx_bits, min_ball_x, max_ball_x)
         ctr += 10
 
-        by_bits = bits[ctr:ctr+10]
+        by_bits = bits[ctr:ctr + 10]
         ballY = BitCodec.decode_bit_array(by_bits, min_ball_y, max_ball_y)
         ctr += 10
 
-        ax_bits = bits[ctr:ctr+10]
+        ax_bits = bits[ctr:ctr + 10]
         agentX = BitCodec.decode_bit_array(ax_bits, min_agent_x, max_agent_x)
         ctr += 10
 
-        ay_bits = bits[ctr:ctr+10]
+        ay_bits = bits[ctr:ctr + 10]
         agentY = BitCodec.decode_bit_array(ay_bits, min_agent_y, max_agent_y)
         ctr += 10
 
@@ -97,8 +104,8 @@ class Y3dCommunicator(BaseCommunicator):
         delta_game_time = self.world_model.get_time() - self.world_model.get_gametime()
         heard_server_time = heard_time + delta_game_time
 
-        time += int((heard_server_time-time)/1310.72)*1310.72
+        time += int((heard_server_time - time) / 1310.72) * 1310.72
         cycles = int(time * 50 + 0.1)
-        unum = (cycles % (NUM_AGENTS*2)) // 2 + 1
+        unum = (cycles % (NUM_AGENTS * 2)) // 2 + 1
         self.heard_data = CommunicationData(
             unum, time, ballX, ballY, agentX, agentY)
