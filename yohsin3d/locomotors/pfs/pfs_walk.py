@@ -7,6 +7,7 @@ from ...movement import Movement
 from .utility import Utility
 import math
 import numpy as np
+from ...core.world.enums import _WORLD_OBJECTS_GLOBAL_POSITIONS
 
 
 WALK_INIT_SKILL = '''
@@ -50,6 +51,11 @@ class PFSWalk:
         self.should_get_ready = True
         self.stop_walk = False
         self.slow_down = False
+
+
+        self.current_target = None
+        self.current_target_moving = None
+
 
     def get_ready_for_walk(self):
         if self.should_get_ready:
@@ -103,6 +109,8 @@ class PFSWalk:
             return self.get_walking_gain(self.walk_counter)
 
     def update_posture(self, gain):
+    
+
         if not self.slow_down:
             if self.walk_counter < 100:
                 self.body_model.set_target_angle(Joint.LA1, -60, gain)
@@ -238,58 +246,40 @@ class PFSWalk:
             Joint.RL6: rlj6
         }
 
+
+    
+
     def adjust_desired_orientation(self, target):
         goal_mid_pos = (15.0, 0.0)
-        my_position = self.localizer.my_location.position[:2]
+        agent_pos = self.localizer.my_location.position[:2]
 
-        goal_pole_1 = WORLD_OBJECTS_GLOBAL_POSITIONS['G1R']
-        goal_pole_2 = WORLD_OBJECTS_GLOBAL_POSITIONS['G2R']
+        line_start_point = Utility.get_point_on_goal_line(target, goal_mid_pos, -3)
 
-        points = np.linspace(
-            np.subtract(
-                goal_pole_1, (0, 0.25, 0)), np.add(
-                goal_pole_2, (0, 0.25, 0)), 5)
+        distance_to_point1 = math.dist(line_start_point, agent_pos)
+        deviation_from_line = Utility.get_perpendicular_distance_to_line(target, goal_mid_pos, agent_pos)
 
-        if math.dist(my_position, goal_mid_pos) < 5:
-            points = [goal_mid_pos]
+        if target[1] > -1 and target[1] < 1 and target[0] > 14.8:
+            theta = Utility.get_angle(target, agent_pos)
+        elif distance_to_point1 > 0.1 and deviation_from_line > 0.5:
+            theta = Utility.get_angle(line_start_point, agent_pos)
+        else:
+            theta = Utility.get_angle(target, agent_pos)
 
-        closest_theta = None
-        closest_line_start_point = None
-        lowest_turn_angle = 9999
-        for point in points:
-            goal_point = point[:2]
-            line_start_point = Utility.get_point_on_goal_line(
-                target, goal_point, -2.75)
-            distance_to_point1 = math.dist(line_start_point, my_position)
-            deviation_from_line = Utility.get_perpendicular_distance_to_line(
-                target, goal_point, my_position)
-
-            if target[1] > -1 and target[1] < 1 and target[0] > 14.8:
-                theta = Utility.get_angle(target, my_position)
-            elif distance_to_point1 > 0.1 and deviation_from_line > 0.5:
-                theta = Utility.get_angle(line_start_point, my_position)
-            else:
-                theta = Utility.get_angle(target, my_position)
-
-            turn_angle = abs(self.localizer.my_location.orientation - theta)
-
-            if turn_angle < lowest_turn_angle:
-                lowest_turn_angle = turn_angle
-                closest_theta = theta
-                closest_line_start_point = line_start_point
-
-        self.dribbling_angle = closest_theta
-        return closest_line_start_point
+        self.dribbling_angle = theta
+        return line_start_point
 
     def dribble_to_goal(self):
         target = self.localizer.ball_position[:2]
+        
+        self.process(target, True)
+
         target = self.adjust_desired_orientation(target)
 
         my_position = self.localizer.my_location.position[:2]
         distance = math.dist(my_position, target)
         self.get_ready_for_walk()
 
-        if not self.should_get_ready and not self.stop_walk:
+        if not self.should_get_ready:
             self.walk_counter += 1
             T = 0.32
             t = self.walk_counter / 50
@@ -303,6 +293,9 @@ class PFSWalk:
                     joint, math.degrees(joints[joint]), gain)
 
     def walk_to(self, target):
+
+        self.process(target, False)
+
         my_position = self.localizer.my_location.position[:2]
         distance = math.dist(my_position, target)
         self.get_ready_for_walk()
@@ -319,3 +312,15 @@ class PFSWalk:
             for joint in joints:
                 self.body_model.set_target_angle(
                     joint, math.degrees(joints[joint]), gain)
+
+
+
+    def process(self, target, is_moving):
+
+        if not is_moving and (target != self.current_target):            
+            self.walk_counter = 0
+            self.stop_walk = False
+            self.should_get_ready = True
+            self.walk_init_skill.reset()
+
+        self.current_target = target

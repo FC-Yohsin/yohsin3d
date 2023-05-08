@@ -18,4 +18,6 @@ for i in range(1, 3):
 
     agent_spawner.add(agent)
 
-agent_spawner.start()
+
+if __name__ == "__main__":
+    agent_spawner.start()

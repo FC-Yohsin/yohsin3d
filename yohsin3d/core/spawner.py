@@ -1,8 +1,11 @@
-import threading
 import time
 from .agent import Agent
-
+from multiprocessing import Process
 from typing import List
+
+
+def agent_start(agent: Agent):
+    agent.start(lambda: None)
 
 
 class Spawner:
@@ -16,13 +19,15 @@ class Spawner:
         for agent in self.agents:
             agent.done()
 
+
     def start(self) -> None:
-        threads: List[threading.Thread] = []
+        
+
+        processes: List[Process] = []
         for agent in self.agents:
-            threads.append(threading.Thread(
-                target=agent.start, args=(lambda: None, )))
-        for thread in threads:
-            thread.start()
+            processes.append(Process(target=agent_start, args=(agent,)))
+        for process in processes:
+            process.start()
             time.sleep(1)
-        for thread in threads:
-            thread.join()
+        for process in processes:
+            process.join()
