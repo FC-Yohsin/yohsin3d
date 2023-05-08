@@ -1,2 +1,2 @@
-from .ground_truth_localizer import GroundTruthLocalizer
+from .ground_truth_localizer import Y3dLocalizer
 from .geometric_localizer import GeometricLocalizer
