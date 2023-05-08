@@ -26,6 +26,7 @@ Here's a table of common commit types and their corresponding emojis:
 | CHORE | Maintenance tasks (build process, package management, etc.) | 🧹 |
 | RELEASE | Package Release | 🎉 |
 
+
 When you commit your changes, please start your commit message with one of the commit types listed above (in all caps), followed by a colon and a brief description of the changes you made. For example:
 
 ✨: Add new feature
