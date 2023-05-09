@@ -114,6 +114,10 @@ class BaseBehavior:
         if self.localizer is not None:
             self.localizer.update()
 
+            # DOn't perform any action if we don't know where we are
+            if self.localizer.my_location.position is None:
+                return
+
         action = ""
         self.act()
 

@@ -6,7 +6,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='yohsin3d',
-    version='0.4.2',
+    version='0.4.4',
     description='Program your own RoboCup 3D soccer playing agents in python',
     long_description=long_description,
     long_description_content_type='text/markdown',
