@@ -68,3 +68,8 @@ Overall, this example file serves as a starting point for developing custom agen
 ## Contributing
 
 We welcome contributions to improve Yohsin3d and make it more accessible to newcomers. Please feel free to submit issues or pull requests on our [GitHub repository](https://github.com/FC-Yohsin/yohsin3d).
+
+
+## Acknowledgements
+
+We would like to extend our special thanks and appreciation to [Karachi Koalas](https://twitter.com/karachikoalas) a joint team between IBA in Karachi, Pakistan and UTS in Sydney, Australia for their support in the development PFS locomotion engine of the yohsin3d library. Furthermore, Karachi Koalas' invaluable input and support throughout the development process have greatly influenced the overall functionality and performance of the Yohsin3D library. Their expertise and collaboration have been vital in driving the project's success.

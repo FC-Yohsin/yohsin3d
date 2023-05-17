@@ -5,7 +5,7 @@ from ..core import BaseLocalizer
 GROUNDTRUTH_NOT_ENABLED_ERROR = "Ground truth not enabled"
 
 
-class Y3dLocalizer(BaseLocalizer):
+class GroundTruthLocalizer(BaseLocalizer):
     def __init__(self) -> None:
         super().__init__()
 
